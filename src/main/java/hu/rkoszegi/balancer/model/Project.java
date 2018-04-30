@@ -3,6 +3,7 @@ package hu.rkoszegi.balancer.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -20,5 +21,6 @@ public class Project {
 
     private String description;
 
+    @DBRef
     private Set<Task> tasks = new HashSet<>();
 }
