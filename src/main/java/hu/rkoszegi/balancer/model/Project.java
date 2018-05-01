@@ -17,6 +17,8 @@ public class Project {
     @Id
     private String id;
 
+    private String name;
+
     private Date deadline;
 
     private String description;
