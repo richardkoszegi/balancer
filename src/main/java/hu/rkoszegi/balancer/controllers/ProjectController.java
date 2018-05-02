@@ -44,16 +44,17 @@ public class ProjectController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateProject(@PathVariable String id, @RequestBody Project project){
         Project storedProject = projectService.getProjectById(id);
+        storedProject.setName(project.getName());
         storedProject.setDeadline(project.getDeadline());
         storedProject.setDescription(project.getDescription());
         projectService.saveProject(project);
-        return new ResponseEntity("Project updated successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Project updated successfully", HttpStatus.OK);
     }
 
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity deleteProject(@PathVariable String id){
         projectService.deleteProject(id);
-        return new ResponseEntity("Project deleted successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Project deleted successfully", HttpStatus.OK);
 
     }
 

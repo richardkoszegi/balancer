@@ -12,9 +12,11 @@ export class Project {
 
   tasks: Task[];
 
-  constructor(name: string, deadline: Date, description: string) {
-    this.name = name;
-    this.deadline = deadline;
-    this.description = description;
+  public copyInto(data) {
+    this.id = data.id;
+    this.name = data.name;
+    this.deadline = data.deadline;
+    this.description = data.description;
+    this.tasks = data.tasks;
   }
 }

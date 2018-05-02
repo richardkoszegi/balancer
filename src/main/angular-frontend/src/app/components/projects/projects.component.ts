@@ -7,7 +7,10 @@ import {Task} from "../../model/Task";
 @Component({
   selector: 'app-projects',
   templateUrl: './projects.component.html',
-  styles: []
+  styles: [`
+    .form-horizontal {
+      margin: 0 20px;
+    }`]
 })
 export class ProjectsComponent implements OnInit {
 
@@ -36,17 +39,18 @@ export class ProjectsComponent implements OnInit {
   }
 
   onCreateProject(): void {
-    let project = new Project(
-      this.newProjectForm.controls['name'].value,
-      this.newProjectForm.controls["deadline"].value,
-      this.newProjectForm.controls["description"].value,
-  );
+    let project = new Project();
+    project.name = this.newProjectForm.controls['name'].value;
+    project.deadline = this.newProjectForm.controls["deadline"].value;
+    project.description = this.newProjectForm.controls["description"].value;
     this.projectService.create(project).subscribe(
       data => {
         this.projects.push(data);
       },
-      error => {alert(error);
-      console.log(error)},
+      error => {
+        alert(error);
+        console.log(error)
+      },
     );
     this.initForm();
   }
@@ -62,8 +66,10 @@ export class ProjectsComponent implements OnInit {
         let index = this.projects.indexOf(project, 0);
         this.projects.splice(index, 1);
       },
-      error => {alert(error);
-        console.log(error)},
+      error => {
+        alert(error);
+        console.log(error)
+      },
     );
   }
 
