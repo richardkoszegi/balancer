@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class TaskController {
 
     private ProjectService projectService;
@@ -48,7 +49,7 @@ public class TaskController {
     public ResponseEntity createTask(@RequestBody Task task){
         log.debug("createTask called");
         taskService.saveTask(task);
-        return new ResponseEntity<>("Task saved successfully", HttpStatus.OK);
+        return new ResponseEntity<>(task, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/project/{projectId}/tasks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -58,7 +59,7 @@ public class TaskController {
         Project project = projectService.getProjectById(projectId);
         project.getTasks().add(task);
         projectService.saveProject(project);
-        return new ResponseEntity<>("Task added to project successfully", HttpStatus.OK);
+        return new ResponseEntity<>(task, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/task/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -76,8 +77,8 @@ public class TaskController {
     }
 
     @RequestMapping(value="/task/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteProject(@PathVariable String id){
-        log.debug("deleteProject called");
+    public ResponseEntity deleteTask(@PathVariable String id){
+        log.debug("deleteTask called");
         taskService.deleteTask(id);
         return new ResponseEntity<>("Task deleted successfully", HttpStatus.OK);
     }

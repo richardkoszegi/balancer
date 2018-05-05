@@ -12,6 +12,8 @@ import {FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ProjectDetailsComponent } from './components/project-details/project-details.component';
 import {AlertComponent} from "./components/alert/alert.component";
 import {AlertService} from "./services/AlertService";
+import { NewTaskModalComponent } from './components/new-task-modal/new-task-modal.component';
+import {TaskService} from "./services/TaskService";
 
 
 const routes: Routes = [
@@ -27,7 +29,8 @@ const routes: Routes = [
     HomeComponent,
     ProjectsComponent,
     ProjectDetailsComponent,
-    AlertComponent
+    AlertComponent,
+    NewTaskModalComponent
   ],
   imports: [
     BrowserModule,
@@ -36,7 +39,7 @@ const routes: Routes = [
     HttpClientModule,
     RouterModule.forRoot(routes, {useHash: true})
   ],
-  providers: [ProjectService, AlertService],
+  providers: [ProjectService, AlertService, TaskService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

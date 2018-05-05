@@ -23,6 +23,15 @@
         </div>
       </div>
       <hr/>
+      <p>Tasks</p>
+      <table class="table">
+        <tr *ngFor="let task of project.tasks">
+        <td>{{task.name}}</td>
+        <td><button (click)="deleteTask(task)" class="btn btn-danger">Delete</button></td>
+        </tr>
+      </table>
+      <app-new-task-modal [projectId]="project.id" [tasks]="project.tasks"></app-new-task-modal>
+      <hr/>
       <button (click)="modifyProject()" type="submit" class="btn btn-success">Save</button>
       <button (click)="goBack()" class="btn btn-primary">Back</button>
     </form>

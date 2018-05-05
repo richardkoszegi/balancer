@@ -4,6 +4,8 @@ import {Project} from "../../model/Project";
 import {ProjectService} from "../../services/ProjectService";
 import {ActivatedRoute, Params} from "@angular/router";
 import {AlertService} from "../../services/AlertService";
+import {Task} from "../../model/Task";
+import {TaskService} from "../../services/TaskService";
 
 @Component({
   selector: 'app-project-details',
@@ -15,6 +17,7 @@ export class ProjectDetailsComponent implements OnInit {
   project: Project;
 
   constructor(private projectService: ProjectService,
+              private taskService: TaskService,
               private alertService: AlertService,
               private route: ActivatedRoute,
               private location: Location) { }
@@ -33,6 +36,14 @@ export class ProjectDetailsComponent implements OnInit {
 
   modifyProject() {
     this.projectService.modifyProject(this.project).subscribe(data => this.alertService.success("Project's data modified successfully!"));
+  }
+
+  deleteTask(task: Task): void {
+    this.taskService.deleteTask(task.id).subscribe( data => {
+      let index = this.project.tasks.indexOf(task, 0);
+      this.project.tasks.splice(index, 1);
+      this.alertService.info("Task deleted!");
+    })
   }
 
   goBack(): void {
