@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Location} from "@angular/common";
 import {Project} from "../../model/Project";
 import {ProjectService} from "../../services/ProjectService";
@@ -6,6 +6,7 @@ import {ActivatedRoute, Params} from "@angular/router";
 import {AlertService} from "../../services/AlertService";
 import {Task} from "../../model/Task";
 import {TaskService} from "../../services/TaskService";
+import {ProjectPlannerComponent} from "../project-planner/project-planner.component";
 
 @Component({
   selector: 'app-project-details',
@@ -15,6 +16,8 @@ import {TaskService} from "../../services/TaskService";
 export class ProjectDetailsComponent implements OnInit {
 
   project: Project;
+
+  @ViewChild(ProjectPlannerComponent) projectPlannerComponent: ProjectPlannerComponent;
 
   constructor(private projectService: ProjectService,
               private taskService: TaskService,
@@ -43,8 +46,13 @@ export class ProjectDetailsComponent implements OnInit {
     this.taskService.deleteTask(task.id).subscribe( data => {
       let index = this.project.tasks.indexOf(task, 0);
       this.project.tasks.splice(index, 1);
+      this.projectPlannerComponent.deleteTask(task);
       this.alertService.info("Task deleted!");
     })
+  }
+
+  onTaskCreated(task: Task): void {
+    this.projectPlannerComponent.addNewTask(task);
   }
 
   goBack(): void {

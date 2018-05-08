@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {Task} from "../../model/Task";
 import {TaskService} from "../../services/TaskService";
@@ -18,6 +18,8 @@ export class NewTaskModalComponent implements OnInit {
 
   @Input()
   tasks: Task[];
+
+  @Output() taskCreated: EventEmitter<Task> = new EventEmitter<Task>();
 
   newTaskForm: FormGroup;
 
@@ -46,7 +48,7 @@ export class NewTaskModalComponent implements OnInit {
         let createdTask = new Task();
         createdTask.copyFrom(data);
         this.tasks.push(createdTask);
-        console.log('Added')
+        this.taskCreated.emit(createdTask);
       },
       error => {
         alert(error);

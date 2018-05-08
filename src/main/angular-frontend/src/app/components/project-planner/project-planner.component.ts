@@ -76,4 +76,29 @@ export class ProjectPlannerComponent implements OnInit {
     }
   }
 
+  addNewTask(task: Task) {
+    let event = <CalendarEvent>{
+      title: task.name,
+      color: colors.blue,
+      start: new Date(task.plannedDate),
+      draggable: true
+    };
+    if(task.plannedDate == null) {
+      this.externalEvents.push(event);
+    } else {
+      console.log(event);
+      this.events.push(event);
+      this.refresh.next();
+    }
+  }
+
+  deleteTask(task: Task) {
+    if(task.plannedDate != null) {
+      this.events = this.events.filter( event => event.title != task.name);
+      this.refresh.next();
+    } else {
+      this.externalEvents = this.externalEvents.filter( event => event.title != task.name);
+    }
+  }
+
 }
