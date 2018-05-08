@@ -14,7 +14,7 @@ import {Task} from "../../model/Task";
 })
 export class ProjectsComponent implements OnInit {
 
-  projects: Project[];
+  projects: Project[] = [];
   newProjectForm: FormGroup;
 
   constructor(private projectService: ProjectService, private fb: FormBuilder) {

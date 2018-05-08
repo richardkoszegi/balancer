@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { CalendarModule } from 'angular-calendar';
 
 
 import { AppComponent } from './app.component';
@@ -14,6 +15,7 @@ import {AlertComponent} from "./components/alert/alert.component";
 import {AlertService} from "./services/AlertService";
 import { NewTaskModalComponent } from './components/new-task-modal/new-task-modal.component';
 import {TaskService} from "./services/TaskService";
+import { ProjectPlannerComponent } from './components/project-planner/project-planner.component';
 
 
 const routes: Routes = [
@@ -30,14 +32,16 @@ const routes: Routes = [
     ProjectsComponent,
     ProjectDetailsComponent,
     AlertComponent,
-    NewTaskModalComponent
+    NewTaskModalComponent,
+    ProjectPlannerComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    RouterModule.forRoot(routes, {useHash: true})
+    RouterModule.forRoot(routes, {useHash: true}),
+    CalendarModule.forRoot()
   ],
   providers: [ProjectService, AlertService, TaskService],
   bootstrap: [AppComponent]

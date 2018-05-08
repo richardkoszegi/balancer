@@ -1,0 +1,97 @@
+<div class="row">
+
+  <div class="col-md-3">
+    <div class="card">
+        <h4>Unplanned tasks</h4>
+      <div class="card-body">
+        <ul class="list-group">
+          <li
+            *ngFor="let event of externalEvents"
+            mwlDraggable
+            [dropData]="{event: event}"
+            class="list-group-item"
+            style="position:relative; z-index: 10">
+            <a
+              href="javascript:;"
+              [style.color]="event.color.primary">
+              {{ event.title }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-9">
+    <div class="row text-center">
+      <div class="col-md-4">
+        <div class="btn-group">
+          <div
+            class="btn btn-primary"
+            mwlCalendarPreviousView
+            [view]="view"
+            [(viewDate)]="viewDate"
+            (viewDateChange)="viewDateChange.next(viewDate)">
+            Previous
+          </div>
+          <div
+            class="btn"
+            mwlCalendarToday
+            [(viewDate)]="viewDate"
+            (viewDateChange)="viewDateChange.next(viewDate)">
+            Today
+          </div>
+          <div
+            class="btn btn-primary"
+            mwlCalendarNextView
+            [view]="view"
+            [(viewDate)]="viewDate"
+            (viewDateChange)="viewDateChange.next(viewDate)">
+            Next
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):locale }}</h3>
+      </div>
+      <div class="col-md-4">
+        <div class="btn-group">
+          <div
+            class="btn btn-primary"
+            (click)="view = 'month'"
+            [class.active]="view === 'month'">
+            Month
+          </div>
+          <div
+            class="btn btn-primary"
+            (click)="view = 'week'"
+            [class.active]="view === 'week'">
+            Week
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <div [ngSwitch]="view">
+      <mwl-calendar-month-view
+        *ngSwitchCase="'month'"
+        [viewDate]="viewDate"
+        [events]="events"
+        [activeDayIsOpen]="activeDayIsOpen"
+        [refresh]="refresh"
+        (eventTimesChanged)="eventDropped($event)">
+      </mwl-calendar-month-view>
+      <mwl-calendar-week-view
+        *ngSwitchCase="'week'"
+        [viewDate]="viewDate"
+        [events]="events"
+        [refresh]="refresh"
+        (eventTimesChanged)="eventDropped($event)">
+      </mwl-calendar-week-view>
+    </div>
+  </div>
+
+</div>
+
+

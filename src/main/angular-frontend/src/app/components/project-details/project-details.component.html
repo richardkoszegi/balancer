@@ -18,22 +18,40 @@
       <div class="form-row">
         <div class="form-group">
           <label for="inputDescription">Description</label>
-          <input [(ngModel)]="project.description" name="description" type="text" class="form-control" id="inputDescription"
+          <input [(ngModel)]="project.description" name="description" type="text" class="form-control"
+                 id="inputDescription"
                  placeholder="Project Description">
         </div>
       </div>
+      <button (click)="modifyProject()" type="submit" class="btn btn-success">Save</button>
+      <button (click)="goBack()" class="btn btn-primary">Back</button>
       <hr/>
-      <p>Tasks</p>
+      <h3>Tasks</h3>
       <table class="table">
+        <thead>
+        <th>Name</th>
+        <th>Planned date</th>
+        <th>Description</th>
+        </thead>
         <tr *ngFor="let task of project.tasks">
-        <td>{{task.name}}</td>
-        <td><button (click)="deleteTask(task)" class="btn btn-danger">Delete</button></td>
+          <td>{{task.name}}</td>
+          <td>{{task.plannedDate | date:'yyyy. MM. dd.'}}</td>
+          <td>{{task.description}}</td>
+          <td>
+            <button (click)="deleteTask(task)" class="btn btn-danger">Delete</button>
+          </td>
         </tr>
       </table>
       <app-new-task-modal [projectId]="project.id" [tasks]="project.tasks"></app-new-task-modal>
-      <hr/>
-      <button (click)="modifyProject()" type="submit" class="btn btn-success">Save</button>
-      <button (click)="goBack()" class="btn btn-primary">Back</button>
     </form>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3>Project Planner</h3>
+  </div>
+  <div *ngIf="project" class="panel-body">
+    <app-project-planner [(tasks)]="project.tasks"></app-project-planner>
   </div>
 </div>

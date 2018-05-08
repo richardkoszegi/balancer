@@ -30,6 +30,7 @@ export class ProjectDetailsComponent implements OnInit {
         this.projectService.getProject(projectId).subscribe( project => {
           console.log(`project: ${project.deadline}`);
           this.project = project;
+          console.log(this.project);
         });
       });
   }
