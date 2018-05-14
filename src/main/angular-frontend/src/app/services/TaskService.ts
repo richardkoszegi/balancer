@@ -18,6 +18,14 @@ export class TaskService {
   }
 
   public updateTask(task: Task): Observable<any> {
-    return this.httpClient.put(`${BASE_URL}/task/${task.id}`, task, {responseType: "text"})
+    return this.httpClient.put(`${BASE_URL}/task/${task.id}`, task, {responseType: "text"});
+  }
+
+  public getTasksForDate(date: Date): Observable<Array<Task>> {
+    // Because: https://www.w3schools.com/js/js_date_methods.asp
+    let url: string = `${BASE_URL}/task/date/${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    console.log(url);
+    console.log(date);
+    return this.httpClient.get<Array<Task>>(url);
   }
 }

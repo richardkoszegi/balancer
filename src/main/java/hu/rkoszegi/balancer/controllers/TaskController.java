@@ -11,6 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @RestController
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200")
@@ -72,6 +75,7 @@ public class TaskController {
         storedTask.setName(task.getName());
         storedTask.setPlannedDate(task.getPlannedDate());
         storedTask.setPriority(task.getPriority());
+        storedTask.setAssignedToDate(task.isAssignedToDate());
         taskService.saveTask(task);
         return new ResponseEntity<>("Task updated successfully", HttpStatus.OK);
     }
@@ -81,5 +85,12 @@ public class TaskController {
         log.debug("deleteTask called");
         taskService.deleteTask(id);
         return new ResponseEntity<>("Task deleted successfully", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/task/date/{year}/{month}/{day}", method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Iterable<Task> getTasksForDate(@PathVariable("year") int year, @PathVariable("month") int month, @PathVariable("day") int day){
+        log.debug("getTasksForDate called");
+        LocalDate localDate = LocalDate.of(year, month, day);
+        return taskService.findTasksForDate(localDate);
     }
 }

@@ -16,6 +16,7 @@ import {AlertService} from "./services/AlertService";
 import { NewTaskModalComponent } from './components/new-task-modal/new-task-modal.component';
 import {TaskService} from "./services/TaskService";
 import { ProjectPlannerComponent } from './components/project-planner/project-planner.component';
+import { DailyPlannerComponent } from './components/daily-planner/daily-planner.component';
 
 
 const routes: Routes = [
@@ -23,6 +24,7 @@ const routes: Routes = [
   {path: 'home', component: HomeComponent},
   {path: 'projects', component: ProjectsComponent},
   {path: 'projects/:projectId', component: ProjectDetailsComponent},
+  {path: 'day-planner', component: DailyPlannerComponent},
 ];
 
 @NgModule({
@@ -33,7 +35,8 @@ const routes: Routes = [
     ProjectDetailsComponent,
     AlertComponent,
     NewTaskModalComponent,
-    ProjectPlannerComponent
+    ProjectPlannerComponent,
+    DailyPlannerComponent
   ],
   imports: [
     BrowserModule,

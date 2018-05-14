@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 
 @Service
 @Slf4j
@@ -53,5 +56,14 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(String id) {
         log.debug("deleteTask called");
         taskRepository.deleteById(id);
+    }
+
+    @Override
+    public Iterable<Task> findTasksForDate(LocalDate date) {
+        log.debug("findTasksForDate called");
+        LocalDate to = date.plusDays(1);
+        return taskRepository.findAllByPlannedDateBetween(
+                date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
+                to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
     }
 }

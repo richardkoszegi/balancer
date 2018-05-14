@@ -16,6 +16,8 @@ export class Task {
 
   subTasks: Task[];
 
+  assignedToDate: boolean;
+
   copyFrom(data) {
     this.id = data.id;
     this.name = data.name;
@@ -25,5 +27,6 @@ export class Task {
     this.description = data.description;
     this.priority = data.priority;
     this.subTasks = data.subTasks;
+    this.assignedToDate = data.assignedToDate;
   }
 }

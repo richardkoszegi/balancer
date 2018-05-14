@@ -1,0 +1,71 @@
+<div class="row">
+
+  <div class="col-md-3">
+    <div class="card">
+      <h4>Unplanned tasks</h4>
+      <div class="card-body">
+        <ul class="list-group">
+          <li
+            *ngFor="let event of externalEvents"
+            mwlDraggable
+            [dropData]="{event: event}"
+            class="list-group-item"
+            style="position:relative; z-index: 10">
+            <a
+              href="javascript:;"
+              [style.color]="event.color.primary">
+              {{ event.title }}
+            </a>
+            <!--<input type="number" step="0.5" min="0" max="23.5">-->
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-9">
+    <div class="row text-center">
+      <div class="col-md-4">
+        <div class="btn-group">
+          <div
+            class="btn btn-primary"
+            mwlCalendarPreviousView
+            [view]="view"
+            [(viewDate)]="viewDate"
+            (viewDateChange)="onViewDateChange()">
+            Previous
+          </div>
+          <div
+            class="btn"
+            mwlCalendarToday
+            [(viewDate)]="viewDate"
+            (viewDateChange)="onViewDateChange()">
+            Today
+          </div>
+          <div
+            class="btn btn-primary"
+            mwlCalendarNextView
+            [view]="view"
+            [(viewDate)]="viewDate"
+            (viewDateChange)="onViewDateChange()">
+            Next
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):locale }}</h3>
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+    <br>
+
+    <mwl-calendar-day-view
+      [viewDate]="viewDate"
+      [events]="events"
+      [refresh]="refresh"
+      (eventTimesChanged)="eventDropped($event)">
+    </mwl-calendar-day-view>
+  </div>
+
+</div>

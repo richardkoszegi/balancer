@@ -1,36 +1,26 @@
 package hu.rkoszegi.balancer.model;
 
-
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @Document
-public class Task {
+public class User {
 
     @Id
     private String id;
 
-    private String name;
+    private String username;
 
-    private Date plannedDate;
+    private String email;
 
-    private Date completionDate;
-
-    private Boolean completed;
-
-    private String description;
-
-    private String priority;
-
-    private boolean assignedToDate;
+    private String password;
 
     @DBRef
-    private Set<Task> subTasks = new HashSet<>();
+    private Set<Project> projects = new HashSet<>();
 }
