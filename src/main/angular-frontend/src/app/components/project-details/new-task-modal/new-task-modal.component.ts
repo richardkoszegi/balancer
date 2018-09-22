@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {Task} from "../../model/Task";
-import {TaskService} from "../../services/TaskService";
+import {Task} from "../../../model/Task";
+import {TaskService} from "../../../services/TaskService";
 
 @Component({
   selector: 'app-new-task-modal',

@@ -11,49 +11,51 @@
 
 </div>
 
-<button class="btn btn-success" data-toggle="modal" data-target="#addProjectModal">Add Project</button>
+<button class="btn btn-success" (click)="modal.show()">Add Project</button>
 
-<div id="addProjectModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button (click)="onCancelCreateProject()" type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Add New Project</h4>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="newProjectForm"
-              class="form-horizontal">
-
-          <div class="form-group">
-            <label for="nameInput" class="control-label">Name</label>
-            <input type="text"
-                   id="nameInput"
-                   placeholder="Name"
-                   [formControl]="newProjectForm.controls['name']"
-                   class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label for="deadlineInput" class="control-label">Deadline</label>
-            <input type="date"
-                   id="deadlineInput"
-                   [formControl]="newProjectForm.controls['deadline']"
-                   class="form-control">
-          </div>
-          <div class="form-group">
-          <label for="locationInput" class="control-label">Description</label>
-          <input type="text"
-                 id="locationInput"
-                 placeholder="Location"
-                 [formControl]="newProjectForm.controls['description']"
-                 class="form-control">
-        </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" (click)="onCreateProject()" class="btn btn-success" data-dismiss="modal">Add</button>
-        <button (click)="onCancelCreateProject()" class="btn btn-default" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
+<app-modal #modal>
+  <div class="app-modal-header">
+    <h4 class="modal-title">Add New Project</h4>
   </div>
-</div>
+
+  <div class="app-modal-body">
+    <form [formGroup]="newProjectForm" (ngSubmit)="onCreateProject(); modal.hide();">
+      <div class="form-group">
+        <label for="nameInput" class="control-label">Name</label>
+        <input type="text"
+               id="nameInput"
+               placeholder="Name"
+               formControlName="name"
+               class="form-control">
+        <span
+          *ngIf="!newProjectForm.get('name').valid && newProjectForm.get('name').touched"
+          class="help-block">Please enter a valid project name!</span>
+      </div>
+
+      <div class="form-group">
+        <label for="deadlineInput" class="control-label">Deadline</label>
+        <input type="date"
+               id="deadlineInput"
+               formControlName="deadline"
+               class="form-control">
+        <span
+          *ngIf="!newProjectForm.get('deadline').valid && newProjectForm.get('deadline').touched"
+          class="help-block">Please enter a deadline!</span>
+      </div>
+
+      <div class="form-group">
+        <label for="descriptionInput" class="control-label">Description</label>
+        <textarea
+          type="text"
+          id="descriptionInput"
+          placeholder="Description"
+          formControlName="description"
+          class="form-control"
+          rows="6"></textarea>
+      </div>
+      <hr/>
+      <button type="submit" [disabled]="!newProjectForm.valid" class="btn btn-success">Add</button>
+      <button type="button" (click)="onCancelCreateProject(); modal.hide()" class="btn btn-default">Cancel</button>
+    </form>
+  </div>
+</app-modal>

@@ -6,7 +6,7 @@ import {ActivatedRoute, Params} from "@angular/router";
 import {AlertService} from "../../services/AlertService";
 import {Task} from "../../model/Task";
 import {TaskService} from "../../services/TaskService";
-import {ProjectPlannerComponent} from "../project-planner/project-planner.component";
+import {ProjectPlannerComponent} from "./project-planner/project-planner.component";
 
 @Component({
   selector: 'app-project-details',

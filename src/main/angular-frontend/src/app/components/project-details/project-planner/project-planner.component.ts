@@ -1,10 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CalendarEvent, CalendarEventTimesChangedEvent} from 'angular-calendar';
 import {Subject} from 'rxjs/Subject';
-import {colors} from "../../Constants";
-import {Task} from "../../model/Task";
-import {TaskService} from "../../services/TaskService";
-import {AlertService} from "../../services/AlertService";
+import {colors} from "../../../Constants";
+import {Task} from "../../../model/Task";
+import {TaskService} from "../../../services/TaskService";
+import {AlertService} from "../../../services/AlertService";
 
 @Component({
   selector: 'app-project-planner',
