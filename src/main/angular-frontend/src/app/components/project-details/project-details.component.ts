@@ -7,6 +7,7 @@ import {AlertService} from "../../services/AlertService";
 import {Task} from "../../model/Task";
 import {TaskService} from "../../services/TaskService";
 import {ProjectPlannerComponent} from "./project-planner/project-planner.component";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-project-details',
@@ -16,6 +17,8 @@ import {ProjectPlannerComponent} from "./project-planner/project-planner.compone
 export class ProjectDetailsComponent implements OnInit {
 
   project: Project;
+
+  projectForm: FormGroup;
 
   @ViewChild(ProjectPlannerComponent) projectPlannerComponent: ProjectPlannerComponent;
 
@@ -29,21 +32,36 @@ export class ProjectDetailsComponent implements OnInit {
     this.route.params
       .subscribe((params: Params) => {
         let projectId = params['projectId'];
-        console.log(projectId);
         this.projectService.getProject(projectId).subscribe( project => {
-          console.log(`project: ${project.deadline}`);
           this.project = project;
-          console.log(this.project);
+          this.initForm();
         });
       });
   }
 
+  initForm() {
+    this.projectForm = new FormGroup({
+      'name': new FormControl(this.project.name, Validators.required),
+      'deadline': new FormControl(this.project.deadline, Validators.required),
+      'description': new FormControl(this.project.description)
+    });
+  }
+
   modifyProject() {
-    this.projectService.modifyProject(this.project).subscribe(data => this.alertService.success("Project's data modified successfully!"));
+    this.setProjectValuesFromForm();
+    this.projectService.modifyProject(this.project).subscribe(() => {
+      this.alertService.success("Project's data modified successfully!");
+    });
+  }
+
+  private setProjectValuesFromForm() {
+    this.project.name = this.projectForm.value['name'];
+    this.project.deadline = this.projectForm.value['deadline'];
+    this.project.description = this.projectForm.value['description'];
   }
 
   deleteTask(task: Task): void {
-    this.taskService.deleteTask(task.id).subscribe( data => {
+    this.taskService.deleteTask(task.id).subscribe( () => {
       let index = this.project.tasks.indexOf(task, 0);
       this.project.tasks.splice(index, 1);
       this.projectPlannerComponent.deleteTask(task);

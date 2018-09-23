@@ -3,48 +3,65 @@
     <h3>{{project?.name}} Details</h3>
   </div>
   <div *ngIf="project" class="panel-body">
-    <form>
+    <form [formGroup]="projectForm" (ngSubmit)="modifyProject()">
       <div class="form-row">
         <div class="form-group">
           <label for="inputName">Name</label>
-          <input [(ngModel)]="project.name" name="name" type="text" class="form-control" id="inputName"
+          <input formControlName="name" name="name" type="text" class="form-control" id="inputName"
                  placeholder="Project Name">
+          <span
+            *ngIf="!projectForm.get('name').valid && projectForm.get('name').touched"
+            class="help-block">Please enter a valid project name!</span>
         </div>
+
         <div class="form-group">
           <label for="inputDeadline">Deadline</label>
           <!--Help: https://stackoverflow.com/a/43003951-->
-          <input [ngModel] ="project.deadline | date:'yyyy-MM-dd'" (ngModelChange)="project.deadline = $event" name="deadline" type="date" class="form-control" id="inputDeadline">
+          <!--and https://stackoverflow.com/a/49577416-->
+          <input formControlName="deadline"
+                 [value]="projectForm.get('deadline').value | date:'yyyy-MM-dd'"
+                 name="deadline" type="date" class="form-control" id="inputDeadline">
+          <span
+            *ngIf="!projectForm.get('deadline').valid && projectForm.get('deadline').touched"
+            class="help-block">Please enter a deadline!</span>
         </div>
       </div>
+
       <div class="form-row">
         <div class="form-group">
           <label for="inputDescription">Description</label>
-          <input [(ngModel)]="project.description" name="description" type="text" class="form-control"
-                 id="inputDescription"
-                 placeholder="Project Description">
+          <textarea
+            formControlName="description"
+            name="description"
+            type="text"
+            class="form-control"
+            id="inputDescription"
+            placeholder="Project Description"
+            rows="6"></textarea>
         </div>
       </div>
-      <button (click)="modifyProject()" type="submit" class="btn btn-success">Save</button>
-      <button (click)="goBack()" class="btn btn-primary">Back</button>
-      <hr/>
-      <h3>Tasks</h3>
-      <table class="table">
-        <thead>
-        <th>Name</th>
-        <th>Planned date</th>
-        <th>Description</th>
-        </thead>
-        <tr *ngFor="let task of project.tasks">
-          <td>{{task.name}}</td>
-          <td>{{task.plannedDate | date:'yyyy. MM. dd.'}}</td>
-          <td>{{task.description}}</td>
-          <td>
-            <button (click)="deleteTask(task)" class="btn btn-danger">Delete</button>
-          </td>
-        </tr>
-      </table>
-      <app-new-task-modal [projectId]="project.id" [tasks]="project.tasks" (taskCreated)="onTaskCreated($event)"></app-new-task-modal>
+      <button type="submit" [disabled]="!projectForm.valid" class="btn btn-success">Save</button>
+      <button type="button" (click)="goBack()" class="btn btn-primary">Back</button>
     </form>
+    <hr/>
+    <h3>Tasks</h3>
+    <table class="table">
+      <thead>
+      <th>Name</th>
+      <th>Planned date</th>
+      <th>Description</th>
+      </thead>
+      <tr *ngFor="let task of project.tasks">
+        <td>{{task.name}}</td>
+        <td>{{task.plannedDate | date:'yyyy. MM. dd.'}}</td>
+        <td>{{task.description}}</td>
+        <td>
+          <button (click)="deleteTask(task)" class="btn btn-danger">Delete</button>
+        </td>
+      </tr>
+    </table>
+    <app-new-task-modal [projectId]="project.id" [tasks]="project.tasks"
+                        (taskCreated)="onTaskCreated($event)"></app-new-task-modal>
   </div>
 </div>
 

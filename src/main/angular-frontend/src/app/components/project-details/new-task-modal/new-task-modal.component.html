@@ -40,8 +40,8 @@
       </div>
 
       <hr/>
-      <button type="submit" class="btn btn-success">Add</button>
-      <button (click)="onCancelCreateTask(); modal.hide()" class="btn btn-default">Cancel</button>
+      <button type="submit" [disabled]="!newTaskForm.valid" class="btn btn-success">Add</button>
+      <button type="button" (click)="onCancelCreateTask(); modal.hide()" class="btn btn-default">Cancel</button>
     </form>
   </div>
 
