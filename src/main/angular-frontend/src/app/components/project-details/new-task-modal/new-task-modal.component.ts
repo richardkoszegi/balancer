@@ -1,15 +1,12 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {Task} from "../../../model/Task";
 import {TaskService} from "../../../services/TaskService";
 
 @Component({
   selector: 'app-new-task-modal',
   templateUrl: './new-task-modal.component.html',
-  styles: [`
-    .form-horizontal {
-      margin: 0 20px;
-    }`]
+  styleUrls: ['./new-task-modal.component.css']
 })
 export class NewTaskModalComponent implements OnInit {
 
@@ -23,14 +20,14 @@ export class NewTaskModalComponent implements OnInit {
 
   newTaskForm: FormGroup;
 
-  constructor(private taskService: TaskService, private fb: FormBuilder) {
+  constructor(private taskService: TaskService) {
   }
 
   initForm(): void {
-    this.newTaskForm = this.fb.group({
-      'name': [''],
-      'plannedDate': [''],
-      'description': ['']
+    this.newTaskForm = new FormGroup({
+      'name': new FormControl('', Validators.required),
+      'plannedDate': new FormControl(''),
+      'description': new FormControl('')
     });
   }
 
@@ -39,11 +36,7 @@ export class NewTaskModalComponent implements OnInit {
   }
 
   onCreateTask() {
-    let task = new Task();
-    task.name = this.newTaskForm.controls['name'].value;
-    task.plannedDate = this.newTaskForm.controls["plannedDate"].value;
-    task.description = this.newTaskForm.controls["description"].value;
-    this.taskService.createForProject(this.projectId, task).subscribe(
+    this.taskService.createForProject(this.projectId, this.newTaskForm.value).subscribe(
       data => {
         let createdTask = new Task();
         createdTask.copyFrom(data);
@@ -55,11 +48,11 @@ export class NewTaskModalComponent implements OnInit {
         console.log(error)
       },
     );
-    this.initForm();
+    this.newTaskForm.reset();
   }
 
   onCancelCreateTask(): void {
-    this.initForm();
+    this.newTaskForm.reset();
   }
 
 }
