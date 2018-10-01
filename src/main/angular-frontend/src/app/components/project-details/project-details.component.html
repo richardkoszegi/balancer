@@ -48,11 +48,13 @@
     <table class="table">
       <thead>
       <th>Name</th>
+      <th>Priority</th>
       <th>Planned date</th>
       <th>Description</th>
       </thead>
       <tr *ngFor="let task of project.tasks">
         <td>{{task.name}}</td>
+        <td>{{task.priority}}</td>
         <td>{{task.plannedDate | date:'yyyy. MM. dd.'}}</td>
         <td>{{task.description}}</td>
         <td>

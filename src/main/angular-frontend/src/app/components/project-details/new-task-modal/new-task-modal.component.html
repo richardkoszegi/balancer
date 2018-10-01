@@ -30,6 +30,15 @@
       </div>
 
       <div class="form-group">
+        <label for="priorityInput" class="control-label">Priority</label>
+        <select id="priorityInput" class="form-control" formControlName="priority">
+          <option value="null">Select One</option>
+          <option *ngFor="let priority of priorities">{{priority}}</option>
+        </select>
+
+      </div>
+
+      <div class="form-group">
         <label for="descriptionInput" class="control-label">Description</label>
         <textarea type="text"
                   id="descriptionInput"

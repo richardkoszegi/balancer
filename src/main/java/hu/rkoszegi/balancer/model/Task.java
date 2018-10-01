@@ -27,7 +27,7 @@ public class Task {
 
     private String description;
 
-    private String priority;
+    private Priority priority;
 
     private boolean assignedToDate;
 
