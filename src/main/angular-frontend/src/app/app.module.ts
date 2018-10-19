@@ -18,6 +18,7 @@ import {TaskService} from "./services/TaskService";
 import {ProjectPlannerComponent} from './components/project-details/project-planner/project-planner.component';
 import {DailyPlannerComponent} from './components/daily-planner/daily-planner.component';
 import {ModalComponent} from "./components/modal/modal.component";
+import {ProjectDetailsService} from "./services/ProjectDetailsService";
 
 
 const routes: Routes = [
@@ -48,7 +49,12 @@ const routes: Routes = [
     RouterModule.forRoot(routes, {useHash: true}),
     CalendarModule.forRoot()
   ],
-  providers: [ProjectService, AlertService, TaskService],
+  providers: [
+    AlertService,
+    ProjectDetailsService,
+    ProjectService,
+    TaskService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

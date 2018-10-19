@@ -1,17 +1,17 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {CalendarEvent, CalendarEventTimesChangedEvent} from 'angular-calendar';
 import {Subject} from 'rxjs/Subject';
 import {colors} from "../../../Constants";
 import {Task} from "../../../model/Task";
-import {TaskService} from "../../../services/TaskService";
 import {AlertService} from "../../../services/AlertService";
+import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-project-planner',
   templateUrl: './project-planner.component.html',
-  // styleUrls: ['../../../../node_modules/angular-calendar/css/angular-calendar.css']
 })
-export class ProjectPlannerComponent implements OnInit {
+export class ProjectPlannerComponent implements OnInit, OnDestroy {
 
   view: string = 'month';
 
@@ -21,7 +21,6 @@ export class ProjectPlannerComponent implements OnInit {
 
   @Output() viewDateChange: EventEmitter<Date> = new EventEmitter();
 
-  @Input()
   tasks: Task[];
 
   externalEvents: CalendarEvent[] = [];
@@ -32,7 +31,9 @@ export class ProjectPlannerComponent implements OnInit {
 
   refresh: Subject<any> = new Subject();
 
-  constructor(private taskService: TaskService, private alertService: AlertService) {}
+  taskSubscription: Subscription;
+
+  constructor(private alertService: AlertService, private projectDetailsService: ProjectDetailsService) {}
 
   eventDropped({
                  event,
@@ -47,7 +48,7 @@ export class ProjectPlannerComponent implements OnInit {
     event.start = newStart;
     let updatedTask = this.tasks.find((task) => task.name === event.title);
     updatedTask.plannedDate = newStart;
-    this.taskService.updateTask(updatedTask).subscribe(data => this.alertService.success("Task date modified!"));
+    this.projectDetailsService.updateTask(updatedTask).subscribe(() => this.alertService.success("Task date modified!"));
     if (newEnd) {
       event.end = newEnd;
     }
@@ -55,6 +56,17 @@ export class ProjectPlannerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.tasks = this.projectDetailsService.project.tasks;
+    this.refreshEvents();
+    this.taskSubscription = this.projectDetailsService.tasksChanged.subscribe((tasks: Task[]) => {
+      this.tasks = tasks;
+      this.refreshEvents();
+    })
+  }
+
+  private refreshEvents() {
+    this.events = [];
+    this.externalEvents = [];
     for (let task of this.tasks) {
       if (task.plannedDate != null) {
         let event = <CalendarEvent>{
@@ -76,29 +88,8 @@ export class ProjectPlannerComponent implements OnInit {
     }
   }
 
-  addNewTask(task: Task) {
-    let event = <CalendarEvent>{
-      title: task.name,
-      color: colors.blue,
-      start: new Date(task.plannedDate),
-      draggable: true
-    };
-    if(task.plannedDate == null) {
-      this.externalEvents.push(event);
-    } else {
-      console.log(event);
-      this.events.push(event);
-      this.refresh.next();
-    }
-  }
-
-  deleteTask(task: Task) {
-    if(task.plannedDate != null) {
-      this.events = this.events.filter( event => event.title != task.name);
-      this.refresh.next();
-    } else {
-      this.externalEvents = this.externalEvents.filter( event => event.title != task.name);
-    }
+  ngOnDestroy() {
+    this.taskSubscription.unsubscribe();
   }
 
 }

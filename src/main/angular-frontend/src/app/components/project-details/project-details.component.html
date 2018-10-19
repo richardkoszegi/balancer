@@ -47,16 +47,18 @@
     <h3>Tasks</h3>
     <table class="table">
       <thead>
-      <th></th>
-      <th>Name</th>
-      <th>Priority</th>
-      <th>Planned date</th>
-      <th>Description</th>
-      <th>Completion date</th>
+      <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Priority</th>
+        <th>Planned date</th>
+        <th>Description</th>
+        <th>Completion date</th>
+      </tr>
       </thead>
       <tr *ngFor="let task of project.tasks" [ngClass]="{completedTaskRow: task.completed === true}">
         <td>
-          <button *ngIf="!task.completed" class="btn btn-success" (click)="onTaskCompleted(task)"><span class="glyphicon glyphicon-ok-sign"></span>&nbsp;</button>
+          <button *ngIf="!task.completed" class="btn btn-success" (click)="onTaskCompleted(task)"><span class="glyphicon glyphicon-ok-sign"></span></button>
 
           <span *ngIf="task.completed" class="glyphicon glyphicon-ok"></span>
         </td>
@@ -70,8 +72,7 @@
         </td>
       </tr>
     </table>
-    <app-new-task-modal [projectId]="project.id" [tasks]="project.tasks"
-                        (taskCreated)="onTaskCreated($event)"></app-new-task-modal>
+    <app-new-task-modal></app-new-task-modal>
   </div>
 </div>
 
@@ -80,6 +81,6 @@
     <h3>Project Planner</h3>
   </div>
   <div *ngIf="project" class="panel-body">
-    <app-project-planner [(tasks)]="project.tasks"></app-project-planner>
+    <app-project-planner></app-project-planner>
   </div>
 </div>

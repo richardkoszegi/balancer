@@ -1,13 +1,11 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Location} from "@angular/common";
 import {Project} from "../../model/Project";
-import {ProjectService} from "../../services/ProjectService";
 import {ActivatedRoute, Params} from "@angular/router";
 import {AlertService} from "../../services/AlertService";
 import {Task} from "../../model/Task";
-import {TaskService} from "../../services/TaskService";
-import {ProjectPlannerComponent} from "./project-planner/project-planner.component";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {ProjectDetailsService} from "../../services/ProjectDetailsService";
 
 @Component({
   selector: 'app-project-details',
@@ -20,11 +18,9 @@ export class ProjectDetailsComponent implements OnInit {
 
   projectForm: FormGroup;
 
-  @ViewChild(ProjectPlannerComponent) projectPlannerComponent: ProjectPlannerComponent;
 
-  constructor(private projectService: ProjectService,
-              private taskService: TaskService,
-              private alertService: AlertService,
+  constructor(private alertService: AlertService,
+              private projectDetailsService: ProjectDetailsService,
               private route: ActivatedRoute,
               private location: Location) { }
 
@@ -32,7 +28,7 @@ export class ProjectDetailsComponent implements OnInit {
     this.route.params
       .subscribe((params: Params) => {
         let projectId = params['projectId'];
-        this.projectService.getProject(projectId).subscribe( project => {
+        this.projectDetailsService.initTasks(projectId).subscribe( project => {
           this.project = project;
           this.initForm();
         });
@@ -49,7 +45,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   modifyProject() {
     this.setProjectValuesFromForm();
-    this.projectService.modifyProject(this.project).subscribe(() => {
+    this.projectDetailsService.modifyProject().subscribe(() => {
       this.alertService.success("Project's data modified successfully!");
     });
   }
@@ -61,16 +57,9 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   deleteTask(task: Task): void {
-    this.taskService.deleteTask(task.id).subscribe( () => {
-      let index = this.project.tasks.indexOf(task, 0);
-      this.project.tasks.splice(index, 1);
-      this.projectPlannerComponent.deleteTask(task);
+    this.projectDetailsService.deleteTask(task).subscribe( () => {
       this.alertService.info("Task deleted!");
     })
-  }
-
-  onTaskCreated(task: Task): void {
-    this.projectPlannerComponent.addNewTask(task);
   }
 
   goBack(): void {
@@ -78,9 +67,7 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   onTaskCompleted(task: Task) {
-    this.taskService.completeTask(task.id).subscribe((completionDate: Date) => {
-      task.completed = true;
-      task.completionDate = completionDate;
+    this.projectDetailsService.completeTask(task).subscribe(() => {
       this.alertService.success("Task completed!");
     } )
   }

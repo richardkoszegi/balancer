@@ -1,8 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {Task} from "../../../model/Task";
-import {TaskService} from "../../../services/TaskService";
 import {Priority} from "../../../model/Priority";
+import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
 
 @Component({
   selector: 'app-new-task-modal',
@@ -11,19 +10,11 @@ import {Priority} from "../../../model/Priority";
 })
 export class NewTaskModalComponent implements OnInit {
 
-  @Input()
-  projectId: string;
-
-  @Input()
-  tasks: Task[];
-
-  @Output() taskCreated: EventEmitter<Task> = new EventEmitter<Task>();
-
   newTaskForm: FormGroup;
 
   priorities: string[];
 
-  constructor(private taskService: TaskService) {
+  constructor(private projectDetailsService: ProjectDetailsService) {
   }
 
   initForm(): void {
@@ -43,18 +34,7 @@ export class NewTaskModalComponent implements OnInit {
   }
 
   onCreateTask() {
-    this.taskService.createForProject(this.projectId, this.newTaskForm.value).subscribe(
-      data => {
-        let createdTask = new Task();
-        createdTask.copyFrom(data);
-        this.tasks.push(createdTask);
-        this.taskCreated.emit(createdTask);
-      },
-      error => {
-        alert(error);
-        console.log(error)
-      },
-    );
+    this.projectDetailsService.createTaskForProject(this.newTaskForm.value);
     this.newTaskForm.reset();
   }
 
