@@ -80,6 +80,16 @@ public class TaskController {
         return new ResponseEntity<>("Task updated successfully", HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/task/{id}/complete", method = RequestMethod.PUT)
+    public ResponseEntity<Date> completeTask(@PathVariable String id){
+        log.debug("completeTask called");
+        Task storedTask = taskService.getTaskById(id);
+        storedTask.setCompleted(true);
+        storedTask.setCompletionDate(new Date());
+        taskService.saveTask(storedTask);
+        return new ResponseEntity<>(storedTask.getCompletionDate(), HttpStatus.OK);
+    }
+
     @RequestMapping(value="/task/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity deleteTask(@PathVariable String id){
         log.debug("deleteTask called");

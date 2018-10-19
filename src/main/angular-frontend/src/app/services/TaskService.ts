@@ -28,4 +28,8 @@ export class TaskService {
     console.log(date);
     return this.httpClient.get<Array<Task>>(url);
   }
+
+  public completeTask(taskId: string): Observable<Date> {
+    return this.httpClient.put<Date>(`${BASE_URL}/task/${taskId}/complete`, null);
+  }
 }

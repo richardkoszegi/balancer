@@ -76,4 +76,12 @@ export class ProjectDetailsComponent implements OnInit {
   goBack(): void {
     this.location.back();
   }
+
+  onTaskCompleted(task: Task) {
+    this.taskService.completeTask(task.id).subscribe((completionDate: Date) => {
+      task.completed = true;
+      task.completionDate = completionDate;
+      this.alertService.success("Task completed!");
+    } )
+  }
 }
