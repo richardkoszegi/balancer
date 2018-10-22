@@ -1,13 +1,17 @@
-<button class="btn btn-success" (click)="modal.show()">Add Task</button>
+<button class="btn"
+        [ngClass]="{'btn-success': !editMode, 'btn-primary': editMode}"
+        (click)="initForm(); modal.show()">
+  {{editMode ? 'Edit' : 'Add Task'}}
+</button>
 
 <app-modal #modal>
 
   <div class="app-modal-header">
-    <h4 class="modal-title">Add New Task</h4>
+    <h4 class="modal-title">{{editMode? 'Edit' : 'Add New'}} Task</h4>
   </div>
 
   <div class="app-modal-body">
-    <form [formGroup]="newTaskForm" (ngSubmit)="onCreateTask(); modal.hide()" class="form-horizontal">
+    <form [formGroup]="newTaskForm" (ngSubmit)="onSubmit(); modal.hide()" class="form-horizontal">
 
       <div class="form-group">
         <label for="nameInput" class="control-label">Name</label>
@@ -25,14 +29,18 @@
         <label for="plannedDateInput" class="control-label">Planned date</label>
         <input type="date"
                id="plannedDateInput"
+               [value]="newTaskForm.get('plannedDate').value | date:'yyyy-MM-dd'"
                formControlName="plannedDate"
                class="form-control">
       </div>
 
       <div class="form-group">
         <label for="priorityInput" class="control-label">Priority</label>
-        <select id="priorityInput" class="form-control" formControlName="priority">
-          <option value="null">Select One</option>
+        <select
+          id="priorityInput"
+          [value]="newTaskForm.get('priority').value"
+          class="form-control"
+          formControlName="priority">
           <option *ngFor="let priority of priorities">{{priority}}</option>
         </select>
 
@@ -49,7 +57,7 @@
       </div>
 
       <hr/>
-      <button type="submit" [disabled]="!newTaskForm.valid" class="btn btn-success">Add</button>
+      <button type="submit" [disabled]="!newTaskForm.valid" class="btn btn-success">Save</button>
       <button type="button" (click)="onCancelCreateTask(); modal.hide()" class="btn btn-default">Cancel</button>
     </form>
   </div>

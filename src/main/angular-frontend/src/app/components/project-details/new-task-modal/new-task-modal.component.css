@@ -5,3 +5,7 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched {
 .form-horizontal {
   margin: 0 20px;
 }
+
+app-modal {
+  color: black;
+}
