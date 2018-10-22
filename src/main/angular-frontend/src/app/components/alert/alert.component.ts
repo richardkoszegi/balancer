@@ -23,6 +23,9 @@ export class AlertComponent {
 
       // add alert to array
       this.alerts.push(alert);
+      setInterval( () => {
+        this.removeAlert(alert);
+      }, 3000);
     });
   }
 

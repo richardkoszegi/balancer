@@ -36,7 +36,9 @@ export class ProjectDetailsService {
   }
 
   updateTask(task: Task): Observable<any> {
-    return this.taskService.updateTask(task);
+    return this.taskService.updateTask(task).map( () => {
+      this.tasksChanged.next(this.project.tasks);
+    });
   }
 
   deleteTask(task: Task): Observable<any> {

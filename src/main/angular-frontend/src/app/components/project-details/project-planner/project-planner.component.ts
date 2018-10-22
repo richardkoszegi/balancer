@@ -68,7 +68,7 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
     this.events = [];
     this.externalEvents = [];
     for (let task of this.tasks) {
-      if (task.plannedDate != null) {
+      if (task.plannedDate) {
         let event = <CalendarEvent>{
           title: task.name,
           color: colors.blue,
