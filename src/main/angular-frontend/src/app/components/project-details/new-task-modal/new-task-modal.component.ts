@@ -33,14 +33,18 @@ export class NewTaskModalComponent implements OnInit {
         'name': new FormControl(this.editedTask.name, Validators.required),
         'priority': new FormControl(this.editedTask.priority),
         'plannedDate': new FormControl(this.editedTask.plannedDate),
-        'description': new FormControl(this.editedTask.description)
+        'description': new FormControl(this.editedTask.description),
+        'completed': new FormControl(this.editedTask.completed),
+        'completionDate': new FormControl(this.editedTask.completionDate)
       });
     } else {
       this.newTaskForm = new FormGroup({
         'name': new FormControl('', Validators.required),
         'priority': new FormControl('C'),
         'plannedDate': new FormControl(''),
-        'description': new FormControl('')
+        'description': new FormControl(''),
+        'completed': new FormControl(false),
+        'completionDate': new FormControl('')
       });
     }
   }
@@ -72,10 +76,18 @@ export class NewTaskModalComponent implements OnInit {
     this.editedTask.priority = this.newTaskForm.value['priority'];
     this.editedTask.plannedDate = this.newTaskForm.value['plannedDate'];
     this.editedTask.description = this.newTaskForm.value['description'];
+    this.editedTask.completed = this.newTaskForm.value['completed'];
+    if(this.editedTask.completed) {
+      this.editedTask.completionDate = this.newTaskForm.value['completionDate'];
+    } else {
+      this.editedTask.completionDate = null;
+    }
   }
 
   onCancelCreateTask(): void {
-    this.newTaskForm.reset();
+    if (!this.editMode) {
+      this.newTaskForm.reset();
+    }
   }
 
 }
