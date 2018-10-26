@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -65,18 +66,17 @@ public class TaskController {
         return new ResponseEntity<>(task, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/task/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateTask(@PathVariable String id, @RequestBody Task task){
+    @RequestMapping(value = "/task", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateTask(@RequestBody Task task){
         log.debug("updateTask called");
-        Task storedTask = taskService.getTaskById(id);
-        storedTask.setCompleted(task.getCompleted());
-        storedTask.setCompletionDate(task.getCompletionDate());
-        storedTask.setDescription(task.getDescription());
-        storedTask.setName(task.getName());
-        storedTask.setPlannedDate(task.getPlannedDate());
-        storedTask.setPriority(task.getPriority());
-        storedTask.setAssignedToDate(task.isAssignedToDate());
-        taskService.saveTask(task);
+        taskService.updateTask(task);
+        return new ResponseEntity<>("Task updated successfully", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/task/batch", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateTask(@RequestBody List<Task> tasks){
+        log.debug("updateTask called");
+        tasks.forEach(taskService::updateTask);
         return new ResponseEntity<>("Task updated successfully", HttpStatus.OK);
     }
 

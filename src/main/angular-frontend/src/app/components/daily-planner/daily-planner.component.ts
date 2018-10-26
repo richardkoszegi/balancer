@@ -26,8 +26,6 @@ export class DailyPlannerComponent implements OnInit {
 
   events: PlannedTask[] = [];
 
-  activeDayIsOpen: boolean = false;
-
   refresh: Subject<any> = new Subject();
 
   tasks: Task[];
@@ -36,7 +34,8 @@ export class DailyPlannerComponent implements OnInit {
 
   dataChanged = false;
 
-  constructor(private taskService: TaskService, private alertService: AlertService) { }
+  constructor(private taskService: TaskService, private alertService: AlertService) {
+  }
 
   ngOnInit() {
     this.priorities = Object.values(Priority).filter(priority => typeof priority == "string");
@@ -46,11 +45,11 @@ export class DailyPlannerComponent implements OnInit {
   initEvents() {
     this.events = [];
     this.externalEvents = [];
-    this.taskService.getTasksForDate(this.viewDate).subscribe( tasks => {
+    this.taskService.getTasksForDate(this.viewDate).subscribe(tasks => {
       this.tasks = tasks;
-      for(let task of tasks) {
+      for (let task of tasks) {
         let event = new PlannedTask(task);
-        if(task.assignedToDate) {
+        if (task.assignedToDate) {
           event.setStartAndEndDate();
           this.events.push(event);
         } else {
@@ -58,7 +57,7 @@ export class DailyPlannerComponent implements OnInit {
         }
       }
       this.refresh.next();
-    })
+    });
   }
 
   eventDropped({
@@ -68,7 +67,7 @@ export class DailyPlannerComponent implements OnInit {
                }: CalendarEventTimesChangedEvent): void {
 
     const eventId = event.id;
-    const externalIndex = this.externalEvents.findIndex( event => event.id == eventId);
+    const externalIndex = this.externalEvents.findIndex(event => event.id == eventId);
     let modifiedTask: PlannedTask;
     if (externalIndex > -1) {
       modifiedTask = this.externalEvents[externalIndex];
@@ -89,6 +88,29 @@ export class DailyPlannerComponent implements OnInit {
     //   this.alertService.success("Task date modified!");
     //   this.refresh.next();
     // });
+  }
+
+  onSaveChanges() {
+    let modifiedTasks = this.getModifiedTasks();
+    this.taskService.updateTasks(modifiedTasks).subscribe(() => {
+      this.dataChanged = false;
+      this.alertService.success("Tasks updated!");
+    })
+  }
+
+  private getModifiedTasks(): Task[] {
+    let modifiedTasks: Task[] = [];
+    for (let plannedTask of this.externalEvents) {
+      if (plannedTask.taskChanged) {
+        modifiedTasks.push(plannedTask.getTask());
+      }
+    }
+    for (let plannedTask of this.events) {
+      if (plannedTask.taskChanged) {
+        modifiedTasks.push(plannedTask.getTask());
+      }
+    }
+    return modifiedTasks;
   }
 
   onViewDateChange() {

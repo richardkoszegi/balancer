@@ -31,6 +31,8 @@ public class Task {
 
     private boolean assignedToDate;
 
+    private int estimatedTime;
+
     @DBRef
     private Set<Task> subTasks = new HashSet<>();
 }

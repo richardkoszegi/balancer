@@ -66,4 +66,19 @@ public class TaskServiceImpl implements TaskService {
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
                 to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
     }
+
+    @Override
+    public void updateTask(Task task) {
+        log.debug("updateTask called");
+        Task storedTask = getTaskById(task.getId());
+        storedTask.setCompleted(task.getCompleted());
+        storedTask.setCompletionDate(task.getCompletionDate());
+        storedTask.setDescription(task.getDescription());
+        storedTask.setName(task.getName());
+        storedTask.setPlannedDate(task.getPlannedDate());
+        storedTask.setPriority(task.getPriority());
+        storedTask.setAssignedToDate(task.isAssignedToDate());
+        storedTask.setEstimatedTime(task.getEstimatedTime());
+        saveTask(task);
+    }
 }

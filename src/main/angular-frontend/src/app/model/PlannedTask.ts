@@ -16,7 +16,7 @@ export class PlannedTask implements CalendarEvent {
 
   taskChanged = false;
 
-  estimatedDate: string;
+  estimatedTimeInput: string;
 
   private task: Task;
 
@@ -26,10 +26,19 @@ export class PlannedTask implements CalendarEvent {
     this.id = task.id;
     this.color = colors.blue;
 
-    if(task.estimatedTime) {
-      const hours = Math.floor(task.estimatedTime / 60);
-      const minutes = task.estimatedTime%60;
-      this.estimatedDate = hours + ':' + minutes;
+    this.initEstimatedTimeInput();
+  }
+  
+  private initEstimatedTimeInput() {
+    if(this.task.estimatedTime) {
+      const hours = Math.floor(this.task.estimatedTime / 60);
+      const minutes = this.task.estimatedTime%60;
+      if (hours < 10) {
+        this.estimatedTimeInput = "0";
+      } else {
+        this.estimatedTimeInput = "";
+      }
+      this.estimatedTimeInput += hours + ':' + minutes;
     }
   }
 
@@ -50,12 +59,12 @@ export class PlannedTask implements CalendarEvent {
   }
 
   get estimatedTime(): string {
-    return this.estimatedDate;
+    return this.estimatedTimeInput;
   }
 
   set estimatedTime(date: string) {
     this.taskChanged = true;
-    this.estimatedDate = date;
+    this.estimatedTimeInput = date;
     this.updateTaskEstimatedTime(date);
   }
 
@@ -80,6 +89,11 @@ export class PlannedTask implements CalendarEvent {
     this.start = newStart;
     this.task.plannedDate = newStart;
     this.task.assignedToDate = true;
+    this.taskChanged = true;
+  }
+
+  getTask(): Task {
+    return this.task;
   }
 
 }

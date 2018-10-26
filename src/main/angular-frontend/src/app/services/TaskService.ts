@@ -18,7 +18,11 @@ export class TaskService {
   }
 
   public updateTask(task: Task): Observable<any> {
-    return this.httpClient.put(`${BASE_URL}/task/${task.id}`, task, {responseType: "text"});
+    return this.httpClient.put(`${BASE_URL}/task`, task, {responseType: "text"});
+  }
+
+  public updateTasks(tasks: Task[]): Observable<any> {
+    return this.httpClient.put(`${BASE_URL}/task/batch`, tasks, {responseType: "text"});
   }
 
   public getTasksForDate(date: Date): Observable<Array<Task>> {

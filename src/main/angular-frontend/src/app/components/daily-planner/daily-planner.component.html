@@ -1,4 +1,4 @@
-<button [disabled]="!dataChanged" class="btn btn-success">Save Changes</button>
+<button (click)="onSaveChanges()" [disabled]="!dataChanged" class="btn btn-success">Save Changes</button>
 <div class="row">
 
   <div class="col-md-3">
