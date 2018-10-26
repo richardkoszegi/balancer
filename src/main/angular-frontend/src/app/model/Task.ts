@@ -1,3 +1,5 @@
+import {Priority} from "./Priority";
+
 export class Task {
 
   id: string;
@@ -12,21 +14,11 @@ export class Task {
 
   description: string;
 
-  priority: string;
+  priority: Priority;
 
   subTasks: Task[];
 
   assignedToDate: boolean;
 
-  copyFrom(data) {
-    this.id = data.id;
-    this.name = data.name;
-    this.plannedDate = data.plannedDate;
-    this.completionDate = data.completionDate;
-    this.completed = data.completed;
-    this.description = data.description;
-    this.priority = data.priority;
-    this.subTasks = data.subTasks;
-    this.assignedToDate = data.assignedToDate;
-  }
+  estimatedTime: number;
 }

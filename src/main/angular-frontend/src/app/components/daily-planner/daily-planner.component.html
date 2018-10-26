@@ -1,3 +1,4 @@
+<button [disabled]="!dataChanged" class="btn btn-success">Save Changes</button>
 <div class="row">
 
   <div class="col-md-3">
@@ -10,14 +11,37 @@
             mwlDraggable
             [dropData]="{event: event}"
             class="list-group-item"
-            style="position:relative; z-index: 10">
-            <a
-              href="javascript:;"
-              [style.color]="event.color.primary">
-              {{ event.title }}
-            </a>
-            <!--<input type="number" step="0.5" min="0" max="23.5">-->
-          </li>
+            style="position:relative; z-index: 10"
+          [style.background]="event.color.secondary">
+
+            <form class="form-horizontal">
+              <div class="form-group">
+                <div class="col-sm-5 col-sm-offset-2">
+                <p class="form-control-static" [style.color]="event.color.primary">{{ event.title }}</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="timeInput" class="control-label col-sm-3">Time</label>
+                <div class="col-sm-6">
+                  <input id="timeInput" type="time" class="form-control" [(ngModel)]="event.estimatedTime" name="estimatedTime" (change)="dataChanged = true">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="priorityInput" class="control-label col-sm-3">Priority</label>
+                <div class="col-sm-6">
+                  <select
+                    id="priorityInput"
+                    [(ngModel)]="event.priority" name="priority"
+                    (change)="dataChanged = true"
+                    class="form-control"
+                  >
+                    <option *ngFor="let priority of priorities">{{priority}}</option>
+                  </select>
+                </div>
+              </div>
+            </form>
         </ul>
       </div>
     </div>
@@ -27,29 +51,32 @@
     <div class="row text-center">
       <div class="col-md-4">
         <div class="btn-group">
-          <div
+          <button
             class="btn btn-primary"
             mwlCalendarPreviousView
             [view]="view"
             [(viewDate)]="viewDate"
+            [disabled]="dataChanged"
             (viewDateChange)="onViewDateChange()">
             Previous
-          </div>
-          <div
-            class="btn"
+          </button>
+          <button
+            class="btn btn-default"
             mwlCalendarToday
             [(viewDate)]="viewDate"
+            [disabled]="dataChanged"
             (viewDateChange)="onViewDateChange()">
             Today
-          </div>
-          <div
+          </button>
+          <button
             class="btn btn-primary"
             mwlCalendarNextView
             [view]="view"
             [(viewDate)]="viewDate"
+            [disabled]="dataChanged"
             (viewDateChange)="onViewDateChange()">
             Next
-          </div>
+          </button>
         </div>
       </div>
       <div class="col-md-4">
@@ -59,13 +86,15 @@
       </div>
     </div>
     <br>
-
+  <div style="height: 600px; overflow: auto">
     <mwl-calendar-day-view
       [viewDate]="viewDate"
       [events]="events"
       [refresh]="refresh"
       (eventTimesChanged)="eventDropped($event)">
     </mwl-calendar-day-view>
+  </div>
+
   </div>
 
 </div>

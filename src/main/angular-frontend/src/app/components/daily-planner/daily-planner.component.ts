@@ -1,10 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {CalendarEvent, CalendarEventTimesChangedEvent} from "angular-calendar";
+import {CalendarEventTimesChangedEvent} from "angular-calendar";
 import {Subject} from "rxjs/Subject";
 import {TaskService} from "../../services/TaskService";
-import {colors} from "../../Constants";
 import {AlertService} from "../../services/AlertService";
 import {Task} from '../../model/Task';
+import {Priority} from "../../model/Priority";
+import {PlannedTask} from "../../model/PlannedTask";
 
 @Component({
   selector: 'app-daily-planner',
@@ -21,9 +22,9 @@ export class DailyPlannerComponent implements OnInit {
 
   @Output() viewDateChange: EventEmitter<Date> = new EventEmitter();
 
-  externalEvents: CalendarEvent[] = [];
+  externalEvents: PlannedTask[] = [];
 
-  events: CalendarEvent[] = [];
+  events: PlannedTask[] = [];
 
   activeDayIsOpen: boolean = false;
 
@@ -31,9 +32,14 @@ export class DailyPlannerComponent implements OnInit {
 
   tasks: Task[];
 
+  priorities: string[];
+
+  dataChanged = false;
+
   constructor(private taskService: TaskService, private alertService: AlertService) { }
 
   ngOnInit() {
+    this.priorities = Object.values(Priority).filter(priority => typeof priority == "string");
     this.initEvents();
   }
 
@@ -43,21 +49,11 @@ export class DailyPlannerComponent implements OnInit {
     this.taskService.getTasksForDate(this.viewDate).subscribe( tasks => {
       this.tasks = tasks;
       for(let task of tasks) {
+        let event = new PlannedTask(task);
         if(task.assignedToDate) {
-          let event = <CalendarEvent>{
-            title: task.name,
-            color: colors.blue,
-            start: new Date(task.plannedDate),
-            draggable: true
-          };
+          event.setStartAndEndDate();
           this.events.push(event);
         } else {
-          let event = <CalendarEvent>{
-            title: task.name,
-            color: colors.blue,
-            start: new Date(),
-            draggable: true
-          };
           this.externalEvents.push(event);
         }
       }
@@ -70,22 +66,29 @@ export class DailyPlannerComponent implements OnInit {
                  newStart,
                  newEnd
                }: CalendarEventTimesChangedEvent): void {
-    const externalIndex: number = this.externalEvents.indexOf(event);
+
+    const eventId = event.id;
+    const externalIndex = this.externalEvents.findIndex( event => event.id == eventId);
+    let modifiedTask: PlannedTask;
     if (externalIndex > -1) {
+      modifiedTask = this.externalEvents[externalIndex];
       this.externalEvents.splice(externalIndex, 1);
-      this.events.push(event);
+      this.events.push(modifiedTask);
     }
-    event.start = newStart;
-    let updatedTask = this.tasks.find((task) => task.name === event.title);
-    updatedTask.plannedDate = newStart;
-    updatedTask.assignedToDate = true;
-    if (newEnd) {
-      event.end = newEnd;
-    }
-    this.taskService.updateTask(updatedTask).subscribe(data => {
-      this.alertService.success("Task date modified!");
-      this.refresh.next();
-    });
+    modifiedTask.changeStart(newStart);
+    modifiedTask.setStartAndEndDate();
+    this.dataChanged = true;
+    this.refresh.next();
+    // let updatedTask = this.tasks.find((task) => task.name === event.title);
+    // updatedTask.plannedDate = newStart;
+    // updatedTask.assignedToDate = true;
+    // if (newEnd) {
+    //   event.end = newEnd;
+    // }
+    // this.taskService.updateTask(updatedTask).subscribe(data => {
+    //   this.alertService.success("Task date modified!");
+    //   this.refresh.next();
+    // });
   }
 
   onViewDateChange() {
