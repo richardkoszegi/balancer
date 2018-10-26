@@ -26,6 +26,9 @@ export class PlannedTask implements CalendarEvent {
     this.id = task.id;
     this.color = colors.blue;
 
+    this.resizable = { beforeStart: true, afterEnd: true };
+    this.draggable = true;
+
     this.initEstimatedTimeInput();
   }
   
@@ -89,6 +92,17 @@ export class PlannedTask implements CalendarEvent {
     this.start = newStart;
     this.task.plannedDate = newStart;
     this.task.assignedToDate = true;
+    this.taskChanged = true;
+  }
+
+  changeEnd(newEnd: Date) {
+    this.end = newEnd;
+    // Two times difference in typescript: https://stackoverflow.com/a/14980102
+    let difference = newEnd.getTime()-this.start.getTime();
+    // The result is in milliseconds: https://stackoverflow.com/a/7763335
+    const hours = Math.floor(difference / (60*60*1000));
+    const minutes = Math.floor((difference % (60*60*1000)) / (60 * 1000));
+    this.task.estimatedTime = hours * 60 + minutes;
     this.taskChanged = true;
   }
 

@@ -73,21 +73,21 @@ export class DailyPlannerComponent implements OnInit {
       modifiedTask = this.externalEvents[externalIndex];
       this.externalEvents.splice(externalIndex, 1);
       this.events.push(modifiedTask);
+    } else {
+      const plannedTaskIndex = this.events.findIndex(event => event.id == eventId);
+      if (plannedTaskIndex > -1) {
+        modifiedTask = this.events[plannedTaskIndex];
+      } else {
+        return;
+      }
     }
     modifiedTask.changeStart(newStart);
+    if (newEnd) {
+      modifiedTask.changeEnd(newEnd);
+    }
     modifiedTask.setStartAndEndDate();
     this.dataChanged = true;
     this.refresh.next();
-    // let updatedTask = this.tasks.find((task) => task.name === event.title);
-    // updatedTask.plannedDate = newStart;
-    // updatedTask.assignedToDate = true;
-    // if (newEnd) {
-    //   event.end = newEnd;
-    // }
-    // this.taskService.updateTask(updatedTask).subscribe(data => {
-    //   this.alertService.success("Task date modified!");
-    //   this.refresh.next();
-    // });
   }
 
   onSaveChanges() {
