@@ -79,6 +79,8 @@
         [viewDate]="viewDate"
         [events]="events"
         [activeDayIsOpen]="activeDayIsOpen"
+        [weekStartsOn]="weekStartsOn"
+        [weekendDays]="weekendDays"
         [refresh]="refresh"
         (eventTimesChanged)="eventDropped($event)">
       </mwl-calendar-month-view>
@@ -87,6 +89,8 @@
         [viewDate]="viewDate"
         [events]="events"
         [refresh]="refresh"
+        [weekStartsOn]="weekStartsOn"
+        [weekendDays]="weekendDays"
         (eventTimesChanged)="eventDropped($event)">
       </mwl-calendar-week-view>
     </div>

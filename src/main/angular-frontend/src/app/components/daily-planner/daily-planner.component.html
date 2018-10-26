@@ -86,11 +86,55 @@
       </div>
     </div>
     <br>
+
+    <context-menu #eventContextMenu>
+      <ng-template contextMenuItem (execute)="moveToUnplanned($event.item)">
+        Move to unplanned events
+      </ng-template>
+      <ng-template contextMenuItem (execute)="deleteEvent($event.item)">
+        Delete event
+      </ng-template>
+    </context-menu>
+
+    <ng-template #eventTitleTemplate let-event="event">
+      <div style="height: 100%; overflow: auto;">
+        <p>{{event.title}}</p>
+        <p>Priority: {{event.priority}}</p>
+        <p>Length: {{event.estimatedTime}}</p>
+      </div>
+    </ng-template>
+
+
+    <ng-template #dayEventTemplate let-dayEvent="dayEvent" let-tooltipPlacement="tooltipPlacement"
+                 let-eventClicked="eventClicked">
+      <div
+        class="cal-event"
+        [style.backgroundColor]="dayEvent.event.color.secondary"
+        [style.borderColor]="dayEvent.event.color.primary"
+        [ngClass]="dayEvent.event.cssClass"
+        [mwlCalendarTooltip]="dayEvent.event.title | calendarEventTitle:'dayTooltip':dayEvent.event"
+        [tooltipPlacement]="tooltipPlacement"
+        [contextMenu]="eventContextMenu"
+        [contextMenuSubject]="dayEvent.event">
+        <mwl-calendar-event-title [customTemplate]="eventTitleTemplate"
+                                  [event]="dayEvent.event"
+                                  view="day"
+                                  (click)="eventClicked.emit()">
+        </mwl-calendar-event-title>
+        <mwl-calendar-event-actions [event]="dayEvent.event"></mwl-calendar-event-actions>
+      </div>
+    </ng-template>
+
+
+
+
   <div style="height: 600px; overflow: auto">
     <mwl-calendar-day-view
       [viewDate]="viewDate"
       [events]="events"
       [refresh]="refresh"
+      [class.weekend-day]="weekendDays.indexOf(viewDate.getDay()) > -1"
+      [eventTemplate]="dayEventTemplate"
       (eventTimesChanged)="eventDropped($event)">
     </mwl-calendar-day-view>
   </div>

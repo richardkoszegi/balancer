@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {CalendarEvent, CalendarEventTimesChangedEvent} from 'angular-calendar';
+import {CalendarEvent, CalendarEventTimesChangedEvent, DAYS_OF_WEEK} from 'angular-calendar';
 import {Subject} from 'rxjs/Subject';
 import {colors} from "../../../Constants";
 import {Task} from "../../../model/Task";
@@ -30,6 +30,10 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
   activeDayIsOpen: boolean = false;
 
   refresh: Subject<any> = new Subject();
+
+  weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
+
+  weekendDays: number[] = [DAYS_OF_WEEK.SATURDAY, DAYS_OF_WEEK.SUNDAY];
 
   taskSubscription: Subscription;
 

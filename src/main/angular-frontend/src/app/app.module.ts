@@ -19,6 +19,7 @@ import {ProjectPlannerComponent} from './components/project-details/project-plan
 import {DailyPlannerComponent} from './components/daily-planner/daily-planner.component';
 import {ModalComponent} from "./components/modal/modal.component";
 import {ProjectDetailsService} from "./services/ProjectDetailsService";
+import {ContextMenuModule} from 'ngx-contextmenu';
 
 
 const routes: Routes = [
@@ -43,6 +44,7 @@ const routes: Routes = [
   ],
   imports: [
     BrowserModule,
+    ContextMenuModule.forRoot(),
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,

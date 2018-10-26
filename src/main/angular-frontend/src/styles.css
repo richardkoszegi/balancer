@@ -1,2 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
+
+iq-calendar-week-hours-view .cal-week-hours-view .cal-days-container .cal-day-container:nth-child(7) .cal-week-hour-even,
+iq-calendar-week-hours-view .cal-week-hours-view .cal-days-container .cal-day-container:nth-child(8) .cal-week-hour-even,
+.weekend-day .cal-day-view .cal-hour:nth-child(even) {
+  background: rgba(255, 0, 0, 0.3);
+}
+
+iq-calendar-week-hours-view .cal-week-hours-view .cal-days-container .cal-day-container:nth-child(7) .cal-week-hour-odd,
+iq-calendar-week-hours-view .cal-week-hours-view .cal-days-container .cal-day-container:nth-child(8) .cal-week-hour-odd,
+.weekend-day .cal-day-view .cal-hour:nth-child(odd) {
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.cal-days .cal-weekend {
+  background: rgba(255, 0, 0, 0.3);
+}

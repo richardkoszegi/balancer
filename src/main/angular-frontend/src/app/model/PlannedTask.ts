@@ -110,4 +110,9 @@ export class PlannedTask implements CalendarEvent {
     return this.task;
   }
 
+  makeUnplanned() {
+    this.task.assignedToDate = false;
+    this.taskChanged = true;
+  }
+
 }

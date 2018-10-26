@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {CalendarEventTimesChangedEvent} from "angular-calendar";
+import {CalendarEventTimesChangedEvent, DAYS_OF_WEEK} from "angular-calendar";
 import {Subject} from "rxjs/Subject";
 import {TaskService} from "../../services/TaskService";
 import {AlertService} from "../../services/AlertService";
@@ -27,6 +27,8 @@ export class DailyPlannerComponent implements OnInit {
   events: PlannedTask[] = [];
 
   refresh: Subject<any> = new Subject();
+
+  weekendDays: number[] = [DAYS_OF_WEEK.SATURDAY, DAYS_OF_WEEK.SUNDAY];
 
   tasks: Task[];
 
@@ -116,6 +118,22 @@ export class DailyPlannerComponent implements OnInit {
   onViewDateChange() {
     this.viewDateChange.next(this.viewDate);
     this.initEvents();
+  }
+
+  moveToUnplanned(plannedTask: PlannedTask) {
+    plannedTask.makeUnplanned();
+    this.events.splice(this.events.indexOf(plannedTask), 1);
+    this.externalEvents.push(plannedTask);
+    this.dataChanged = true;
+    this.refresh.next();
+  }
+
+  deleteEvent(plannedTask: PlannedTask) {
+    this.taskService.deleteTask(plannedTask.getTask().id).subscribe(() => {
+      this.events.splice(this.events.indexOf(plannedTask), 1);
+      this.alertService.info("Task deleted!");
+      this.refresh.next();
+    })
   }
 
 }
