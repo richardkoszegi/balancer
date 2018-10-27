@@ -3,7 +3,6 @@ package hu.rkoszegi.balancer.services;
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,10 +13,11 @@ import java.util.Optional;
 public class ProjectServiceImpl implements ProjectService {
 
     private ProjectRepository projectRepository;
+    private TaskService taskService;
 
-    @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, TaskService taskService) {
         this.projectRepository = projectRepository;
+        this.taskService = taskService;
     }
 
     @Override
@@ -42,6 +42,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProject(String id) {
         log.debug("deleteProject called");
+        Project project = getProjectById(id);
+        project.getTasks().forEach(task -> taskService.deleteTask(task.getId()));
         projectRepository.deleteById(id);
     }
 }
