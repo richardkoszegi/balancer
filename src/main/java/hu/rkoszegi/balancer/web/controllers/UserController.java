@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping("/api/user")
@@ -31,5 +32,10 @@ public class UserController {
         } catch (UserNameAlreadyExistsException e) {
             return ResponseEntity.badRequest().body("Message: " + e.getMessage());
         }
+    }
+
+    @RequestMapping(value = "/checkUserName", method = RequestMethod.GET)
+    public ResponseEntity<Boolean> checkIfUserExists(@PathParam("username") String username) {
+        return ResponseEntity.ok(userService.usernameExists(username));
     }
 }

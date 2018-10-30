@@ -20,14 +20,20 @@ import {DailyPlannerComponent} from './components/daily-planner/daily-planner.co
 import {ModalComponent} from "./components/modal/modal.component";
 import {ProjectDetailsService} from "./services/ProjectDetailsService";
 import {ContextMenuModule} from 'ngx-contextmenu';
+import { RegisterComponent } from './components/register/register.component';
+import { LoginComponent } from './components/login/login.component';
+import {UserService} from "./services/UserService";
+import {AuthGuard} from "./services/auth-guard.service";
 
 
 const routes: Routes = [
   {path: '', redirectTo: 'home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
-  {path: 'projects', component: ProjectsComponent},
-  {path: 'projects/:projectId', component: ProjectDetailsComponent},
-  {path: 'day-planner', component: DailyPlannerComponent},
+  {path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard]},
+  {path: 'projects/:projectId', component: ProjectDetailsComponent, canActivate: [AuthGuard]},
+  {path: 'day-planner', component: DailyPlannerComponent, canActivate: [AuthGuard]},
+  {path: 'register', component: RegisterComponent},
+  {path: 'login', component: LoginComponent},
 ];
 
 @NgModule({
@@ -40,7 +46,9 @@ const routes: Routes = [
     NewTaskModalComponent,
     ProjectPlannerComponent,
     DailyPlannerComponent,
-    ModalComponent
+    ModalComponent,
+    RegisterComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -53,9 +61,11 @@ const routes: Routes = [
   ],
   providers: [
     AlertService,
+    AuthGuard,
     ProjectDetailsService,
     ProjectService,
-    TaskService
+    TaskService,
+    UserService
   ],
   bootstrap: [AppComponent]
 })

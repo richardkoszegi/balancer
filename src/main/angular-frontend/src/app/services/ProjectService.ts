@@ -13,23 +13,23 @@ export class ProjectService{
   constructor(private httpClient: HttpClient) {}
 
   public list(): Observable<Array<Project>> {
-    return this.httpClient.get<Array<Project>>(this.URL);
+    return this.httpClient.get<Array<Project>>(this.URL, {withCredentials: true});
   }
 
   public create(project: Project): Observable<Project> {
-    return this.httpClient.post<Project>(this.URL, project);
+    return this.httpClient.post<Project>(this.URL, project, {withCredentials: true});
   }
 
   public delete(project: Project): Observable<any> {
-    return this.httpClient.delete(`${this.URL}/${project.id}`, {responseType: "text"});
+    return this.httpClient.delete(`${this.URL}/${project.id}`, {responseType: "text", withCredentials: true});
   }
 
   public getProject(projectId: string): Observable<Project> {
-    return this.httpClient.get<Project>(`${this.URL}/${projectId}`);
+    return this.httpClient.get<Project>(`${this.URL}/${projectId}`, {withCredentials: true});
   }
 
   public modifyProject(project: Project): Observable<any> {
-    return this.httpClient.put(`${this.URL}/${project.id}`, project, {responseType: "text"})
+    return this.httpClient.put(`${this.URL}/${project.id}`, project, {responseType: "text", withCredentials: true})
   }
 
 }

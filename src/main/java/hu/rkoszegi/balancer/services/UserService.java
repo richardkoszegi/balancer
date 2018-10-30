@@ -8,5 +8,7 @@ public interface UserService {
 
     User createNewUser(UserDTO accountDto) throws UserNameAlreadyExistsException;
 
+    boolean usernameExists(String userName);
+
     User getLoggedInUser();
 }

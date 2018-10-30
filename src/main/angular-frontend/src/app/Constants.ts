@@ -1,4 +1,4 @@
-export const BASE_URL: string = "http://localhost:8414";
+export const BASE_URL: string = "http://localhost:8414/api";
 
 export const colors: any = {
   red: {

@@ -16,3 +16,7 @@ iq-calendar-week-hours-view .cal-week-hours-view .cal-days-container .cal-day-co
 .cal-days .cal-weekend {
   background: rgba(255, 0, 0, 0.3);
 }
+
+input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
