@@ -1,4 +1,4 @@
-package hu.rkoszegi.balancer.controllers;
+package hu.rkoszegi.balancer.web.controllers;
 
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.Task;
@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200")
 public class TaskController {

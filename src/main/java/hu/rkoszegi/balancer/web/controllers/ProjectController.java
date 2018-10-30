@@ -1,4 +1,4 @@
-package hu.rkoszegi.balancer.controllers;
+package hu.rkoszegi.balancer.web.controllers;
 
 
 import hu.rkoszegi.balancer.model.Project;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/project")
+@RequestMapping("/api/project")
 @CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 public class ProjectController {
