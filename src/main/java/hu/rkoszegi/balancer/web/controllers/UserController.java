@@ -25,6 +25,9 @@ public class UserController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<Object> registerUserAccount(@RequestBody @Valid UserDTO accountDto) {
+        if(!accountDto.getPassword().equals(accountDto.getMatchingPassword())) {
+            return ResponseEntity.badRequest().body("Passwords does not match!");
+        }
         User registered;
         try {
             registered = userService.createNewUser(accountDto);
