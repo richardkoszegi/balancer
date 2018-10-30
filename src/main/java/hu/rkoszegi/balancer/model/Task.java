@@ -33,6 +33,8 @@ public class Task {
 
     private int estimatedTime;
 
+    private User user;
+
     @DBRef
     private Set<Task> subTasks = new HashSet<>();
 }

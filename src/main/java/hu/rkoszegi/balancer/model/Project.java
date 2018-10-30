@@ -23,6 +23,8 @@ public class Project {
 
     private String description;
 
+    private User user;
+
     @DBRef
     private Set<Task> tasks = new HashSet<>();
 }

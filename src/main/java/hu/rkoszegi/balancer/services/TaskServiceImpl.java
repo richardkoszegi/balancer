@@ -19,12 +19,13 @@ public class TaskServiceImpl implements TaskService {
 
     private ProjectRepository projectRepository;
     private TaskRepository taskRepository;
+    private UserService userService;
 
 
-    @Autowired
-    public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository) {
+    public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -43,13 +44,14 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void saveTask(Task task) {
         log.debug("saveTask called");
+        task.setUser(userService.getLoggedInUser());
         taskRepository.save(task);
     }
 
     @Override
     public Iterable<Task> findAllTask() {
         log.debug("findAllTask called");
-        return taskRepository.findAll();
+        return taskRepository.findAllByUser(userService.getLoggedInUser());
     }
 
     @Override
@@ -62,7 +64,8 @@ public class TaskServiceImpl implements TaskService {
     public Iterable<Task> findTasksForDate(LocalDate date) {
         log.debug("findTasksForDate called");
         LocalDate to = date.plusDays(1);
-        return taskRepository.findAllByPlannedDateBetween(
+        return taskRepository.findAllByUserAndPlannedDateBetween(
+                userService.getLoggedInUser(),
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
                 to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
     }

@@ -7,4 +7,6 @@ import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
 public interface UserService {
 
     User createNewUser(UserDTO accountDto) throws UserNameAlreadyExistsException;
+
+    User getLoggedInUser();
 }

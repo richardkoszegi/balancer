@@ -5,6 +5,8 @@ import hu.rkoszegi.balancer.model.UserRole;
 import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.web.dto.UserDTO;
 import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +33,16 @@ public class UserServiceImpl implements UserService {
     private boolean usernameExists(String userName) {
         User user = userRepository.findUserByUsername(userName);
         return user!= null;
+    }
+
+    @Override
+    public User getLoggedInUser() {
+        String userName = getLoggedInUserName();
+        return userRepository.findUserByUsername(userName);
+    }
+
+    private String getLoggedInUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

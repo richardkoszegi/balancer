@@ -14,16 +14,18 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ProjectRepository projectRepository;
     private TaskService taskService;
+    private UserService userService;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, TaskService taskService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, TaskService taskService, UserService userService) {
         this.projectRepository = projectRepository;
         this.taskService = taskService;
+        this.userService = userService;
     }
 
     @Override
     public Iterable<Project> listAllProjects() {
         log.debug("listAllProjects called");
-        return projectRepository.findAll();
+        return projectRepository.findAllByUser(userService.getLoggedInUser());
     }
 
     @Override
@@ -36,6 +38,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void saveProject(Project project) {
         log.debug("saveProject called");
+        project.setUser(userService.getLoggedInUser());
         projectRepository.save(project);
     }
 
