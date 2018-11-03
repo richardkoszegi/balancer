@@ -101,6 +101,7 @@
         <p>{{event.title}}</p>
         <p>Priority: {{event.priority}}</p>
         <p>Length: {{event.estimatedTime}}</p>
+        <button *ngIf="!event.getTask().completed" (click)="onTaskComplete(event)" class="btn btn-success"><span class="glyphicon glyphicon-ok-sign"></span></button>
       </div>
     </ng-template>
 
@@ -111,6 +112,7 @@
         class="cal-event"
         [style.backgroundColor]="dayEvent.event.color.secondary"
         [style.borderColor]="dayEvent.event.color.primary"
+        [style.color]="dayEvent.event.color.primary"
         [ngClass]="dayEvent.event.cssClass"
         [mwlCalendarTooltip]="dayEvent.event.title | calendarEventTitle:'dayTooltip':dayEvent.event"
         [tooltipPlacement]="tooltipPlacement"

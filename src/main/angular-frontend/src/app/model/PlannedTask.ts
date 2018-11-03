@@ -24,7 +24,12 @@ export class PlannedTask implements CalendarEvent {
     this.task = task;
     this.title = task.name;
     this.id = task.id;
-    this.color = colors.blue;
+
+    if (task.completed) {
+      this.color = colors.green;
+    } else {
+      this.color = colors.blue;
+    }
 
     this.resizable = { beforeStart: true, afterEnd: true };
     this.draggable = true;

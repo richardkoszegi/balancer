@@ -6,6 +6,7 @@ import {AlertService} from "../../services/AlertService";
 import {Task} from '../../model/Task';
 import {Priority} from "../../model/Priority";
 import {PlannedTask} from "../../model/PlannedTask";
+import {colors} from "../../Constants";
 
 @Component({
   selector: 'app-daily-planner',
@@ -134,6 +135,15 @@ export class DailyPlannerComponent implements OnInit {
       this.alertService.info("Task deleted!");
       this.refresh.next();
     })
+  }
+
+  onTaskComplete(plannedTask: PlannedTask) {
+    plannedTask.getTask().completed = true;
+    plannedTask.getTask().completionDate = new Date();
+    plannedTask.taskChanged = true;
+    this.dataChanged = true;
+    plannedTask.color = colors.green;
+    this.refresh.next();
   }
 
 }
