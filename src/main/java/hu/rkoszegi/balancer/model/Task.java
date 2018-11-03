@@ -33,6 +33,7 @@ public class Task {
 
     private int estimatedTime;
 
+    @DBRef
     private User user;
 
     @DBRef

@@ -23,6 +23,7 @@ public class Project {
 
     private String description;
 
+    @DBRef
     private User user;
 
     @DBRef
