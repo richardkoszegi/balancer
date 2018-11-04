@@ -10,7 +10,7 @@ export class Task {
 
   completionDate: Date;
 
-  completed: boolean;
+  completed: boolean = false;
 
   description: string;
 
@@ -18,7 +18,7 @@ export class Task {
 
   subTasks: Task[];
 
-  assignedToDate: boolean;
+  assignedToDate: boolean = false;
 
   estimatedTime: number;
 }

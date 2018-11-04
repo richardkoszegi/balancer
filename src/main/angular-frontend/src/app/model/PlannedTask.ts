@@ -46,7 +46,11 @@ export class PlannedTask implements CalendarEvent {
       } else {
         this.estimatedTimeInput = "";
       }
-      this.estimatedTimeInput += hours + ':' + minutes;
+      this.estimatedTimeInput += hours + ':';
+      if (minutes < 10) {
+        this.estimatedTimeInput += '0';
+      }
+      this.estimatedTime += minutes;
     }
   }
 
@@ -77,11 +81,15 @@ export class PlannedTask implements CalendarEvent {
   }
 
   private updateTaskEstimatedTime(dateString: string) {
+    this.task.estimatedTime = PlannedTask.convertEstimatedTime(dateString);
+  }
+
+  static convertEstimatedTime(dateString: string): number {
     let newEstimatedTime = 0;
     const splitDate = dateString.split(':');
     newEstimatedTime += +splitDate[0] * 60;
     newEstimatedTime += +splitDate[1];
-    this.task.estimatedTime = newEstimatedTime;
+    return newEstimatedTime;
   }
 
   get priority(): Priority {

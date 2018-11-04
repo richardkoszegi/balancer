@@ -1,0 +1,70 @@
+<button class="btn btn-success" (click)="modal.show()">
+  Add Task
+</button>
+
+<app-modal #modal>
+
+  <div class="app-modal-header">
+    <h4 class="modal-title">Add New Task</h4>
+  </div>
+
+  <div class="app-modal-body">
+    <form [formGroup]="newTaskForm" (ngSubmit)="onSubmit(); modal.hide()" class="form-horizontal">
+
+      <div class="form-group">
+        <label for="nameInput" class="control-label">Name</label>
+        <input type="text"
+               id="nameInput"
+               placeholder="Name"
+               formControlName="name"
+               class="form-control">
+        <span
+          *ngIf="!newTaskForm.get('name').valid && newTaskForm.get('name').touched"
+          class="help-block">Please enter a task name!</span>
+      </div>
+
+      <div class="form-group">
+        <label for="projectIdInput" class="control-label">Project</label>
+        <select
+          id="projectIdInput"
+          class="form-control"
+          formControlName="projectId">
+          <option value="">Select one</option>
+          <option *ngFor="let project of projects" [value]="project.id">{{project.name}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="timeInput" class="control-label">Estimated Time</label>
+          <input id="timeInput" type="time" class="form-control" formControlName="estimatedTime" name="estimatedTime">
+      </div>
+
+      <div class="form-group">
+        <label for="priorityInput" class="control-label">Priority</label>
+        <select
+          id="priorityInput"
+          [value]="newTaskForm.get('priority').value"
+          class="form-control"
+          formControlName="priority">
+          <option *ngFor="let priority of priorities">{{priority}}</option>
+        </select>
+
+      </div>
+
+      <div class="form-group">
+        <label for="descriptionInput" class="control-label">Description</label>
+        <textarea type="text"
+                  id="descriptionInput"
+                  placeholder="Description"
+                  formControlName="description"
+                  class="form-control"
+                  rows="6"></textarea>
+      </div>
+
+      <hr/>
+      <button type="submit" [disabled]="!newTaskForm.valid" class="btn btn-success">Save</button>
+      <button type="button" (click)="onCancelCreateTask(); modal.hide()" class="btn btn-default">Cancel</button>
+    </form>
+  </div>
+
+</app-modal>

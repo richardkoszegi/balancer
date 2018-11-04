@@ -24,6 +24,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import {UserService} from "./services/UserService";
 import {AuthGuard} from "./services/auth-guard.service";
+import {NewDayTaskModalComponent} from "./components/daily-planner/new-day-task-modal/new-day-task-modal.component";
 
 
 const routes: Routes = [
@@ -43,6 +44,7 @@ const routes: Routes = [
     ProjectsComponent,
     ProjectDetailsComponent,
     AlertComponent,
+    NewDayTaskModalComponent,
     NewTaskModalComponent,
     ProjectPlannerComponent,
     DailyPlannerComponent,

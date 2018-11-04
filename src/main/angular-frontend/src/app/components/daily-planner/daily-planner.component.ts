@@ -146,4 +146,10 @@ export class DailyPlannerComponent implements OnInit {
     this.refresh.next();
   }
 
+  onTaskCreated(task: Task) {
+    const plannedTask = new PlannedTask(task);
+    this.externalEvents.push(plannedTask);
+    this.refresh.next();
+  }
+
 }

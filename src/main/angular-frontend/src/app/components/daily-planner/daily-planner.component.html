@@ -4,6 +4,7 @@
   <div class="col-md-3">
     <div class="card">
       <h4>Unplanned tasks</h4>
+      <app-new-day-task-modal [plannedDate]="viewDate" (taskCreated)="onTaskCreated($event)"></app-new-day-task-modal>
       <div class="card-body">
         <ul class="list-group">
           <li
