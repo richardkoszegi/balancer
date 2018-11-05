@@ -1,4 +1,6 @@
-export const BASE_URL: string = "http://localhost:8414/api";
+import {environment} from "../environments/environment";
+
+export const BASE_URL: string = environment.apiUrl;
 
 export const colors: any = {
   red: {
