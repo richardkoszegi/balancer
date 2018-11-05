@@ -3,7 +3,7 @@ package hu.rkoszegi.balancer.services;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.model.UserRole;
 import hu.rkoszegi.balancer.repositories.UserRepository;
-import hu.rkoszegi.balancer.web.dto.UserDTO;
+import hu.rkoszegi.balancer.web.dto.NewUserDTO;
 import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createNewUser(UserDTO accountDto) throws UserNameAlreadyExistsException {
+    public User createNewUser(NewUserDTO accountDto) throws UserNameAlreadyExistsException {
         if (usernameExists(accountDto.getUsername())) {
             throw new UserNameAlreadyExistsException("Username already exists");
         }

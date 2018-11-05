@@ -2,7 +2,7 @@ package hu.rkoszegi.balancer.web.controllers;
 
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.services.UserService;
-import hu.rkoszegi.balancer.web.dto.UserDTO;
+import hu.rkoszegi.balancer.web.dto.NewUserDTO;
 import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Object> registerUserAccount(@RequestBody @Valid UserDTO accountDto) {
+    public ResponseEntity<Object> registerUserAccount(@RequestBody @Valid NewUserDTO accountDto) {
         if(!accountDto.getPassword().equals(accountDto.getMatchingPassword())) {
             return ResponseEntity.badRequest().body("Passwords does not match!");
         }
