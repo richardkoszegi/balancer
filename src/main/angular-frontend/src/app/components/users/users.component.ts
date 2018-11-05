@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {UserService} from "../../services/UserService";
 import {User} from "../../model/User";
+import {AlertService} from "../../services/AlertService";
 
 @Component({
   selector: 'app-users',
@@ -11,7 +12,9 @@ export class UsersComponent implements OnInit {
 
   users: User[] = [];
 
-  constructor(private userService: UserService) { }
+  constructor(private alertService: AlertService,
+              private userService: UserService) {
+  }
 
   ngOnInit() {
     this.userService.getAllUser().subscribe((users: User[]) => {
@@ -24,6 +27,20 @@ export class UsersComponent implements OnInit {
       return this.users.filter((user: User) => user.username !== this.userService.user.username);
     }
     return [];
+  }
+
+  deleteUser(user: User) {
+    this.userService.deleteUser(user.username).subscribe(() => {
+      this.users.splice(this.users.indexOf(user));
+      this.alertService.success(`${user.username} user deleted`);
+    });
+  }
+
+  promoteUserToAdmin(user: User) {
+    this.userService.promoteUserToAdmin(user.username).subscribe(() => {
+      user.role = 'ROLE_ADMIN';
+      this.alertService.success(`${user.username} promoted to admin!`);
+    })
   }
 
 }

@@ -1,6 +1,7 @@
 package hu.rkoszegi.balancer.web.controllers;
 
 import hu.rkoszegi.balancer.model.User;
+import hu.rkoszegi.balancer.model.UserRole;
 import hu.rkoszegi.balancer.services.UserService;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
 import hu.rkoszegi.balancer.web.dto.UserDTO;
@@ -9,10 +10,7 @@ import hu.rkoszegi.balancer.web.mapper.UserMapper;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
@@ -58,5 +56,19 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Iterable<UserDTO> getAllUser() {
         return userMapper.mapUsersToDtoList(userService.getAllUser());
+    }
+
+    @RequestMapping(value = "/{userName}", method= RequestMethod.DELETE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity deleteUser(@PathVariable("userName") String userName) {
+        userService.deleteUser(userName);
+        return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/{userName}/makeAdmin", method= RequestMethod.PUT)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity changeUserRole(@PathVariable("userName") String userName) {
+        userService.chaneUserRole(userName, UserRole.ROLE_ADMIN);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,7 +1,9 @@
 package hu.rkoszegi.balancer.services;
 
+import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.model.UserRole;
+import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
 import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
@@ -15,10 +17,12 @@ public class UserServiceImpl implements UserService {
 
     private PasswordEncoder passwordEncoder;
     private UserRepository userRepository;
+    private ProjectRepository projectRepository;
 
-    public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository) {
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, ProjectRepository projectRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
     }
 
     @Override
@@ -50,5 +54,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public Iterable<User> getAllUser() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public void deleteUser(String userName) {
+        User user = userRepository.findUserByUsername(userName);
+        Iterable<Project> userProjects = user.getProjects();
+        userProjects.forEach(project -> projectRepository.delete(project));
+        userRepository.delete(user);
+    }
+
+    @Override
+    public void chaneUserRole(String userName, UserRole newUserRole) {
+        User user = userRepository.findUserByUsername(userName);
+        user.setRole(newUserRole);
+        userRepository.save(user);
     }
 }

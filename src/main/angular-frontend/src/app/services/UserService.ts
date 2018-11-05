@@ -61,5 +61,15 @@ export class UserService {
     const URL: string = BASE_URL + `/user`;
     return this.httpClient.get<User[]>(URL, {withCredentials: true});
   }
+
+  deleteUser(username: string): Observable<any> {
+    const URL: string = BASE_URL + `/user/` + username;
+    return this.httpClient.delete(URL, {responseType: 'text', withCredentials: true});
+  }
+
+  promoteUserToAdmin(username: string): Observable<any> {
+    const URL: string = `${BASE_URL}/user/${username}/makeAdmin`;
+    return this.httpClient.put(URL, null,{responseType: 'text', withCredentials: true});
+  }
   
 }
