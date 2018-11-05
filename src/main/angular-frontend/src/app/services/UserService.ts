@@ -31,8 +31,11 @@ export class UserService {
         withCredentials: true
       }
     ).map(() => {
-        this.authenticated = true;
-        this.user = user;
+        const loggedInUserURL = BASE_URL + '/user/loggedInUser';
+        this.httpClient.get(loggedInUserURL, {withCredentials: true}).subscribe( (loggedInUser: User) => {
+          this.user = loggedInUser;
+          this.authenticated = true;
+        });
       }
     );
   }
@@ -52,6 +55,11 @@ export class UserService {
     const URL: string = BASE_URL + `/user/checkUserName`;
     const params = new HttpParams().set('username', username);
     return this.httpClient.get(URL, {params: params});
+  }
+
+  getAllUser(): Observable<User[]> {
+    const URL: string = BASE_URL + `/user`;
+    return this.httpClient.get<User[]>(URL, {withCredentials: true});
   }
   
 }

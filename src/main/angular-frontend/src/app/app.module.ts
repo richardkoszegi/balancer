@@ -25,6 +25,8 @@ import { LoginComponent } from './components/login/login.component';
 import {UserService} from "./services/UserService";
 import {AuthGuard} from "./services/auth-guard.service";
 import {NewDayTaskModalComponent} from "./components/daily-planner/new-day-task-modal/new-day-task-modal.component";
+import {PathAllowerService} from "./services/path-allower.service";
+import { UsersComponent } from './components/users/users.component';
 
 
 const routes: Routes = [
@@ -35,6 +37,7 @@ const routes: Routes = [
   {path: 'day-planner', component: DailyPlannerComponent, canActivate: [AuthGuard]},
   {path: 'register', component: RegisterComponent},
   {path: 'login', component: LoginComponent},
+  {path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
 ];
 
 @NgModule({
@@ -50,7 +53,8 @@ const routes: Routes = [
     DailyPlannerComponent,
     ModalComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    UsersComponent
   ],
   imports: [
     BrowserModule,
@@ -64,6 +68,7 @@ const routes: Routes = [
   providers: [
     AlertService,
     AuthGuard,
+    PathAllowerService,
     ProjectDetailsService,
     ProjectService,
     TaskService,

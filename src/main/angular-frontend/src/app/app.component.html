@@ -17,6 +17,11 @@
       <li><a [routerLink]="['/day-planner']" *ngIf="isUserLoggedIn()">Day Planner</a></li>
       <li><a [routerLink]="['/login']" *ngIf="!isUserLoggedIn()">Login</a></li>
       <li><a [routerLink]="['/register']" *ngIf="!isUserLoggedIn()">Register</a></li>
+      <li><a [routerLink]="['/users']" *ngIf="isUserLoggedIn() && isRouteAllowed('users')">Users</a></li>
+
+      <li class="navbar-text" *ngIf="isUserLoggedIn()">
+        <i class="fa fa-user" aria-hidden="true"></i><span> {{getUser().username}} ({{getUserRole()}})</span>
+      </li>
 
       <li *ngIf="isUserLoggedIn()">
         <a (click)="logout()" style="cursor: pointer;">

@@ -48,6 +48,12 @@ public class UserController {
         return ResponseEntity.ok(userService.usernameExists(username));
     }
 
+    @RequestMapping(value = "/loggedInUser", method = RequestMethod.GET)
+    public UserDTO getLoggedInUser() {
+        return userMapper.mapUserToDto(userService.getLoggedInUser());
+    }
+
+
     @RequestMapping(method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Iterable<UserDTO> getAllUser() {
