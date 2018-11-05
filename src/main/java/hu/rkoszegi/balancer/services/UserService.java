@@ -11,4 +11,6 @@ public interface UserService {
     boolean usernameExists(String userName);
 
     User getLoggedInUser();
+
+    Iterable<User> getAllUser();
 }

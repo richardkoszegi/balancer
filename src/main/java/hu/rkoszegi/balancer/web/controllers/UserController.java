@@ -3,8 +3,12 @@ package hu.rkoszegi.balancer.web.controllers;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.services.UserService;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
+import hu.rkoszegi.balancer.web.dto.UserDTO;
 import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
+import hu.rkoszegi.balancer.web.mapper.UserMapper;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,9 +21,11 @@ import javax.websocket.server.PathParam;
 @RequestMapping("/api/user")
 public class UserController {
 
+    private UserMapper userMapper;
     private UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserMapper userMapper, UserService userService) {
+        this.userMapper = userMapper;
         this.userService = userService;
     }
 
@@ -40,5 +46,11 @@ public class UserController {
     @RequestMapping(value = "/checkUserName", method = RequestMethod.GET)
     public ResponseEntity<Boolean> checkIfUserExists(@PathParam("username") String username) {
         return ResponseEntity.ok(userService.usernameExists(username));
+    }
+
+    @RequestMapping(method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Iterable<UserDTO> getAllUser() {
+        return userMapper.mapUsersToDtoList(userService.getAllUser());
     }
 }
