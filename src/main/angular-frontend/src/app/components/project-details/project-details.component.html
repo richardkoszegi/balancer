@@ -68,14 +68,16 @@
         <td>{{task.description}}</td>
         <td>{{task.completionDate | date:'yyyy. MM. dd.'}}</td>
         <td>
-          <app-new-task-modal [editedTask]="task"></app-new-task-modal>
+          <button class="btn btn-primary" (click)="onEditTask(task.id)">Edit </button>
         </td>
         <td>
           <button (click)="deleteTask(task)" class="btn btn-danger">Delete</button>
         </td>
       </tr>
     </table>
-    <app-new-task-modal></app-new-task-modal>
+
+    <button class="btn btn-success" (click)="onAddTask()">Add Task</button>
+
   </div>
 </div>
 

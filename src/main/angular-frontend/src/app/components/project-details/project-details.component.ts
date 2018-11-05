@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Location} from "@angular/common";
 import {Project} from "../../model/Project";
-import {ActivatedRoute, Params} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 import {AlertService} from "../../services/AlertService";
 import {Task} from "../../model/Task";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
@@ -22,6 +22,7 @@ export class ProjectDetailsComponent implements OnInit {
   constructor(private alertService: AlertService,
               private projectDetailsService: ProjectDetailsService,
               private route: ActivatedRoute,
+              private router: Router,
               private location: Location) { }
 
   ngOnInit() {
@@ -70,5 +71,13 @@ export class ProjectDetailsComponent implements OnInit {
     this.projectDetailsService.completeTask(task).subscribe(() => {
       this.alertService.success("Task completed!");
     } )
+  }
+
+  onAddTask() {
+    this.router.navigate(['projects', this.project.id, 'task', 'new']);
+  }
+
+  onEditTask(taskId: string) {
+    this.router.navigate(['projects', this.project.id, 'tasks', taskId, 'edit']);
   }
 }

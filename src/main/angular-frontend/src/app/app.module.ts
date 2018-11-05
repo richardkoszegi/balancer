@@ -13,7 +13,6 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ProjectDetailsComponent} from './components/project-details/project-details.component';
 import {AlertComponent} from "./components/alert/alert.component";
 import {AlertService} from "./services/AlertService";
-import {NewTaskModalComponent} from './components/project-details/new-task-modal/new-task-modal.component';
 import {TaskService} from "./services/TaskService";
 import {ProjectPlannerComponent} from './components/project-details/project-planner/project-planner.component';
 import {DailyPlannerComponent} from './components/daily-planner/daily-planner.component';
@@ -27,6 +26,8 @@ import {AuthGuard} from "./services/auth-guard.service";
 import {NewDayTaskModalComponent} from "./components/daily-planner/new-day-task-modal/new-day-task-modal.component";
 import {PathAllowerService} from "./services/path-allower.service";
 import { UsersComponent } from './components/users/users.component';
+import { TaskEditComponent } from './components/task-edit/task-edit.component';
+import {DatePipe} from "@angular/common";
 
 
 const routes: Routes = [
@@ -38,6 +39,10 @@ const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'login', component: LoginComponent},
   {path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
+  {path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
+  {path: 'projects/:projectId/task/new', component: TaskEditComponent, canActivate: [AuthGuard]},
+  {path: 'tasks/new', component: TaskEditComponent, canActivate: [AuthGuard]},
+  {path: 'projects/:projectId/tasks/:taskId/edit', component: TaskEditComponent, canActivate: [AuthGuard]},
 ];
 
 @NgModule({
@@ -48,13 +53,13 @@ const routes: Routes = [
     ProjectDetailsComponent,
     AlertComponent,
     NewDayTaskModalComponent,
-    NewTaskModalComponent,
     ProjectPlannerComponent,
     DailyPlannerComponent,
     ModalComponent,
     RegisterComponent,
     LoginComponent,
-    UsersComponent
+    UsersComponent,
+    TaskEditComponent
   ],
   imports: [
     BrowserModule,
@@ -68,6 +73,7 @@ const routes: Routes = [
   providers: [
     AlertService,
     AuthGuard,
+    DatePipe,
     PathAllowerService,
     ProjectDetailsService,
     ProjectService,

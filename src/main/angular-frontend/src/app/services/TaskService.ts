@@ -34,6 +34,6 @@ export class TaskService {
   }
 
   public completeTask(taskId: string): Observable<Date> {
-    return this.httpClient.put<Date>(`${BASE_URL}/task/${taskId}/complete`, null);
+    return this.httpClient.put<Date>(`${BASE_URL}/task/${taskId}/complete`, null, {withCredentials: true});
   }
 }

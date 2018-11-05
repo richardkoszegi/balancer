@@ -56,4 +56,9 @@ export class ProjectDetailsService {
     });
   }
 
+  getTaskById(taskId: string): Task {
+    return this.project.tasks[this.project.tasks.findIndex(task => task.id === taskId)];
+    // return this.project.tasks.find(task => task.id === taskId);
+  }
+
 }
