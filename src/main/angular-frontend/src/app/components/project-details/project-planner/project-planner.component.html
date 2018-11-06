@@ -26,29 +26,29 @@
     <div class="row text-center">
       <div class="col-md-4">
         <div class="btn-group">
-          <div
+          <button
             class="btn btn-primary"
             mwlCalendarPreviousView
             [view]="view"
             [(viewDate)]="viewDate"
             (viewDateChange)="viewDateChange.next(viewDate)">
             Previous
-          </div>
-          <div
-            class="btn"
+          </button>
+          <button
+            class="btn btn-default"
             mwlCalendarToday
             [(viewDate)]="viewDate"
             (viewDateChange)="viewDateChange.next(viewDate)">
             Today
-          </div>
-          <div
+          </button>
+          <button
             class="btn btn-primary"
             mwlCalendarNextView
             [view]="view"
             [(viewDate)]="viewDate"
             (viewDateChange)="viewDateChange.next(viewDate)">
             Next
-          </div>
+          </button>
         </div>
       </div>
       <div class="col-md-4">
@@ -56,18 +56,18 @@
       </div>
       <div class="col-md-4">
         <div class="btn-group">
-          <div
+          <button
             class="btn btn-primary"
             (click)="view = 'month'"
             [class.active]="view === 'month'">
             Month
-          </div>
-          <div
+          </button>
+          <button
             class="btn btn-primary"
             (click)="view = 'week'"
             [class.active]="view === 'week'">
             Week
-          </div>
+          </button>
         </div>
       </div>
     </div>

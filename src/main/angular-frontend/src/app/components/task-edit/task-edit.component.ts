@@ -9,6 +9,7 @@ import {ProjectService} from "../../services/ProjectService";
 import {ProjectDetailsService} from "../../services/ProjectDetailsService";
 import {AlertService} from "../../services/AlertService";
 import {TaskService} from "../../services/TaskService";
+import {UserService} from "../../services/UserService";
 
 @Component({
   selector: 'app-task-edit',
@@ -28,6 +29,8 @@ export class TaskEditComponent implements OnInit {
   taskForm: FormGroup;
 
   projects: Project[];
+  project: Project;
+  assignableUsers: string[];
 
   priorities: string[];
 
@@ -36,6 +39,7 @@ export class TaskEditComponent implements OnInit {
     private datePipe: DatePipe,
     private projectService: ProjectService,
     private projectDetailsService: ProjectDetailsService,
+    private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
     private taskService: TaskService,
@@ -58,17 +62,25 @@ export class TaskEditComponent implements OnInit {
           this.calledFromDayPlanner = params['dateParam'] != null;
           this.projectService.list().subscribe((projects: Project[]) => {
             this.projects = projects;
+            if (!this.projectCanBeChanged) {
+              this.project = this.projects.find(project => project.id === this.projectId);
+            }
+            if(!this.calledFromDayPlanner) {
+              this.assignableUsers = this.project.memberNames.slice();
+              this.assignableUsers.push(this.project.ownerName);
+            }
+            this.initForm();
           });
           if (this.editMode) {
             this.editedTask = this.projectDetailsService.getTaskById(this.taskId);
           }
-          this.initForm();
         });
   }
 
   private initForm(): void {
     let name = '';
     let priority = 'C';
+    let assignedUser = '';
     let plannedDate = '';
     let description = '';
     let completed = false;
@@ -78,6 +90,7 @@ export class TaskEditComponent implements OnInit {
     if (this.editMode) {
       name = this.editedTask.name;
       priority = this.editedTask.priority.toString();
+      assignedUser = this.editedTask.assignedUser;
       //date to string: https://stackoverflow.com/a/40460346
       plannedDate = this.datePipe.transform(this.editedTask.plannedDate, 'yyyy-MM-dd');
       description = this.editedTask.description;
@@ -94,11 +107,16 @@ export class TaskEditComponent implements OnInit {
       'name': new FormControl(name, Validators.required),
       'projectId': new FormControl({value: projectId, disabled: !this.projectCanBeChanged}, Validators.required),
       'priority': new FormControl(priority),
+      'assignedUser': new FormControl({value: assignedUser, disabled: !this.isEditorOwner()}),
       'plannedDate': new FormControl({value: plannedDate, disabled: this.calledFromDayPlanner}),
       'description': new FormControl(description),
       'completed': new FormControl(completed),
       'completionDate': new FormControl(completionDate)
     });
+  }
+
+  private isEditorOwner(): boolean {
+    return this.userService.isUserLoggedIn() && this.project && this.userService.user.username === this.project.ownerName;
   }
 
   onSubmit() {
@@ -128,6 +146,7 @@ export class TaskEditComponent implements OnInit {
     this.editedTask.plannedDate = this.taskForm.value['plannedDate'];
     this.editedTask.description = this.taskForm.value['description'];
     this.editedTask.completed = this.taskForm.value['completed'];
+    this.editedTask.assignedUser = this.taskForm.value['assignedUser'];
     if (this.editedTask.completed) {
       this.editedTask.completionDate = this.taskForm.value['completionDate'];
     } else {

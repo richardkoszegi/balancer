@@ -1,4 +1,4 @@
-<div class="row">
+<div *ngIf="taskForm" class="row">
   <div class="col-xs-12">
     <h3>{{editMode? 'Edit' : 'Add New'}} Task</h3>
 
@@ -30,6 +30,21 @@
               formControlName="projectId">
               <option value="">Select one</option>
               <option *ngFor="let project of projects" [value]="project.id">{{project.name}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="editMode" class="row">
+        <div class="col-xs-12">
+          <div class="form-group">
+            <label for="assignedUserInput" class="control-label">Assigned user</label>
+            <select
+              id="assignedUserInput"
+              [value]="taskForm.get('assignedUser').value"
+              class="form-control"
+              formControlName="assignedUser">
+              <option *ngFor="let member of assignableUsers">{{member}}</option>
             </select>
           </div>
         </div>

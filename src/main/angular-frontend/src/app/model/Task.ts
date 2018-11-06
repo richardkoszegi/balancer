@@ -16,7 +16,7 @@ export class Task {
 
   priority: Priority;
 
-  subTasks: Task[];
+  assignedUser: string;
 
   assignedToDate: boolean = false;
 

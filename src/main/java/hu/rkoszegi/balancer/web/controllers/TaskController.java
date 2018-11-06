@@ -82,7 +82,7 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/task/date/{year}/{month}/{day}", method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<Task> getTasksForDate(@PathVariable("year") int year, @PathVariable("month") int month, @PathVariable("day") int day){
+    public Iterable<TaskDTO> getTasksForDate(@PathVariable("year") int year, @PathVariable("month") int month, @PathVariable("day") int day){
         log.debug("getTasksForDate called");
         LocalDate localDate = LocalDate.of(year, month, day);
         return taskService.findTasksForDate(localDate);

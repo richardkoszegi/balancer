@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -64,7 +66,7 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(String id) {
         log.debug("deleteTask called");
         Optional<Task> taskOptional = taskRepository.findById(id);
-        if(taskOptional.isPresent()) {
+        if (taskOptional.isPresent()) {
             Task deletedTask = taskOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanModifyTask(loggedInUser, deletedTask)) {
@@ -78,13 +80,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Iterable<Task> findTasksForDate(LocalDate date) {
+    public Iterable<TaskDTO> findTasksForDate(LocalDate date) {
         log.debug("findTasksForDate called");
         LocalDate to = date.plusDays(1);
-        return taskRepository.findAllByAssignedUserAndPlannedDateBetween(
+        Iterable<Task> tasks = taskRepository.findAllByAssignedUserAndPlannedDateBetween(
                 userService.getLoggedInUser(),
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
                 to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
+        List<TaskDTO> resultList = new ArrayList<>();
+        tasks.forEach(task -> resultList.add(taskMapper.toDto(task)));
+        return resultList;
     }
 
     @Override
@@ -92,7 +97,7 @@ public class TaskServiceImpl implements TaskService {
         log.debug("updateTask called");
         Task storedTask = getTaskById(taskDTO.getId());
         User loggedInUser = userService.getLoggedInUser();
-        if(userCanModifyTask(loggedInUser, storedTask)) {
+        if (userCanModifyTask(loggedInUser, storedTask)) {
             storedTask.setCompleted(taskDTO.isCompleted());
             storedTask.setCompletionDate(taskDTO.getCompletionDate());
             storedTask.setDescription(taskDTO.getDescription());
@@ -101,10 +106,18 @@ public class TaskServiceImpl implements TaskService {
             storedTask.setPriority(taskDTO.getPriority());
             storedTask.setAssignedToDate(taskDTO.isAssignedToDate());
             storedTask.setEstimatedTime(taskDTO.getEstimatedTime());
+            if (userOwnsProject(loggedInUser, storedTask.getProject())) {
+                User newAssignee = userService.getUserByUsername(taskDTO.getAssignedUser());
+                storedTask.setAssignedUser(newAssignee);
+            }
             saveTask(storedTask);
         } else {
             throw new BadRequestException("User can't modify this task");
         }
+    }
+
+    private boolean userOwnsProject(User user, Project project) {
+        return user.equals(project.getOwner());
     }
 
     private boolean userCanModifyTask(User user, Task task) {
@@ -115,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskDTO createTask(String projectId, Task task) {
         log.debug("createTask called");
         Optional<Project> projectOptional = projectRepository.findById(projectId);
-        if(projectOptional.isPresent()) {
+        if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanCreateTask(loggedInUser, project)) {
@@ -138,7 +151,7 @@ public class TaskServiceImpl implements TaskService {
         log.debug("completeTask called");
         Task storedTask = getTaskById(taskId);
         User loggedInUser = userService.getLoggedInUser();
-        if(userCanModifyTask(loggedInUser, storedTask)) {
+        if (userCanModifyTask(loggedInUser, storedTask)) {
             storedTask.setCompleted(true);
             storedTask.setCompletionDate(new Date());
             saveTask(storedTask);

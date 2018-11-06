@@ -18,7 +18,7 @@ public interface TaskService {
 
     void deleteTask(String id);
 
-    Iterable<Task> findTasksForDate(LocalDate date);
+    Iterable<TaskDTO> findTasksForDate(LocalDate date);
 
     void updateTask(TaskDTO taskDTO);
 

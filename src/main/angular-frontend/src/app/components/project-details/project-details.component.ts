@@ -128,4 +128,8 @@ export class ProjectDetailsComponent implements OnInit {
     });
   }
 
+  canUserEditTask(task: Task): boolean {
+    return (this.userService.isUserLoggedIn() && this.userService.user.username === task.assignedUser) || this.isUserOwner();
+  }
+
 }

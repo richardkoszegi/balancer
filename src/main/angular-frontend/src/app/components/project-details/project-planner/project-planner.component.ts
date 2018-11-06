@@ -6,6 +6,7 @@ import {Task} from "../../../model/Task";
 import {AlertService} from "../../../services/AlertService";
 import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
 import {Subscription} from "rxjs";
+import {UserService} from "../../../services/UserService";
 
 @Component({
   selector: 'app-project-planner',
@@ -37,26 +38,31 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
 
   taskSubscription: Subscription;
 
-  constructor(private alertService: AlertService, private projectDetailsService: ProjectDetailsService) {}
+  constructor(private alertService: AlertService,
+              private projectDetailsService: ProjectDetailsService,
+              private userService: UserService) {}
 
   eventDropped({
                  event,
                  newStart,
                  newEnd
                }: CalendarEventTimesChangedEvent): void {
-    const externalIndex: number = this.externalEvents.indexOf(event);
-    if (externalIndex > -1) {
-      this.externalEvents.splice(externalIndex, 1);
-      this.events.push(event);
-    }
-    event.start = newStart;
     let updatedTask = this.tasks.find((task) => task.name === event.title);
-    updatedTask.plannedDate = newStart;
-    this.projectDetailsService.updateTask(updatedTask).subscribe(() => this.alertService.success("Task date modified!"));
-    if (newEnd) {
-      event.end = newEnd;
+    if(this.canUserEditTask(updatedTask)) {
+      const externalIndex: number = this.externalEvents.indexOf(event);
+      if (externalIndex > -1) {
+        this.externalEvents.splice(externalIndex, 1);
+        this.events.push(event);
+      }
+      event.start = newStart;
+
+      updatedTask.plannedDate = newStart;
+      this.projectDetailsService.updateTask(updatedTask).subscribe(() => this.alertService.success("Task date modified!"));
+      if (newEnd) {
+        event.end = newEnd;
+      }
+      this.viewDate = newStart;
     }
-    this.viewDate = newStart;
   }
 
   ngOnInit(): void {
@@ -75,17 +81,17 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
       if (task.plannedDate) {
         let event = <CalendarEvent>{
           title: task.name,
-          color: colors.blue,
+          color: this.canUserEditTask(task)? colors.blue : colors.yellow,
           start: new Date(task.plannedDate),
-          draggable: true
+          draggable: this.canUserEditTask(task)
         };
         this.events.push(event);
       } else {
         let event = <CalendarEvent>{
           title: task.name,
-          color: colors.blue,
+          color: this.canUserEditTask(task)? colors.blue : colors.yellow,
           start: new Date(),
-          draggable: true
+          draggable: this.canUserEditTask(task)
         };
         this.externalEvents.push(event);
       }
@@ -94,6 +100,14 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.taskSubscription.unsubscribe();
+  }
+
+  private canUserEditTask(task: Task): boolean {
+    return (this.userService.isUserLoggedIn() && this.userService.user.username === task.assignedUser) || this.isUserOwner();
+  }
+
+  isUserOwner(): boolean {
+    return this.userService.isUserLoggedIn() && this.projectDetailsService.project.ownerName === this.userService.user.username;
   }
 
 }
