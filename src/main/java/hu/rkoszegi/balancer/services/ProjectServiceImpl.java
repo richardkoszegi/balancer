@@ -3,6 +3,7 @@ package hu.rkoszegi.balancer.services;
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
+import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.ProjectDTO;
 import hu.rkoszegi.balancer.web.mapper.ProjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -104,7 +105,11 @@ public class ProjectServiceImpl implements ProjectService {
         List<User> newMemberList = new ArrayList<>();
         for (String username: memberNames) {
             User user = userService.getUserByUsername(username);
-            newMemberList.add(user);
+            if(user != null) {
+                newMemberList.add(user);
+            } else {
+                throw new BadRequestException("User '" + username + "' does not exists");
+            }
         }
         project.setMembers(newMemberList);
         projectRepository.save(project);
