@@ -7,6 +7,8 @@ import {Task} from '../../model/Task';
 import {Priority} from "../../model/Priority";
 import {PlannedTask} from "../../model/PlannedTask";
 import {colors} from "../../Constants";
+import {Router} from "@angular/router";
+import {DatePipe} from "@angular/common";
 
 @Component({
   selector: 'app-daily-planner',
@@ -37,7 +39,10 @@ export class DailyPlannerComponent implements OnInit {
 
   dataChanged = false;
 
-  constructor(private taskService: TaskService, private alertService: AlertService) {
+  constructor(private taskService: TaskService,
+              private alertService: AlertService,
+              private router: Router,
+              private datePipe: DatePipe) {
   }
 
   ngOnInit() {
@@ -146,10 +151,8 @@ export class DailyPlannerComponent implements OnInit {
     this.refresh.next();
   }
 
-  onTaskCreated(task: Task) {
-    const plannedTask = new PlannedTask(task);
-    this.externalEvents.push(plannedTask);
-    this.refresh.next();
+  onAddTask() {
+    this.router.navigate(['day-planner', this.datePipe.transform(this.viewDate, 'yyyy-MM-dd'), 'new']);
   }
 
 }

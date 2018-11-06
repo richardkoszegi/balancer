@@ -23,7 +23,6 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import {UserService} from "./services/UserService";
 import {AuthGuard} from "./services/auth-guard.service";
-import {NewDayTaskModalComponent} from "./components/daily-planner/new-day-task-modal/new-day-task-modal.component";
 import {PathAllowerService} from "./services/path-allower.service";
 import { UsersComponent } from './components/users/users.component';
 import { TaskEditComponent } from './components/task-edit/task-edit.component';
@@ -36,6 +35,7 @@ const routes: Routes = [
   {path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard]},
   {path: 'projects/:projectId', component: ProjectDetailsComponent, canActivate: [AuthGuard]},
   {path: 'day-planner', component: DailyPlannerComponent, canActivate: [AuthGuard]},
+  {path: 'day-planner/:dateParam/new', component: TaskEditComponent, canActivate: [AuthGuard]},
   {path: 'register', component: RegisterComponent},
   {path: 'login', component: LoginComponent},
   {path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
@@ -52,7 +52,6 @@ const routes: Routes = [
     ProjectsComponent,
     ProjectDetailsComponent,
     AlertComponent,
-    NewDayTaskModalComponent,
     ProjectPlannerComponent,
     DailyPlannerComponent,
     ModalComponent,

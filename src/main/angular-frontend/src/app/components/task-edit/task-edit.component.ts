@@ -8,6 +8,7 @@ import {DatePipe, Location} from "@angular/common";
 import {ProjectService} from "../../services/ProjectService";
 import {ProjectDetailsService} from "../../services/ProjectDetailsService";
 import {AlertService} from "../../services/AlertService";
+import {TaskService} from "../../services/TaskService";
 
 @Component({
   selector: 'app-task-edit',
@@ -20,6 +21,8 @@ export class TaskEditComponent implements OnInit {
   projectCanBeChanged = true;
   taskId: string;
   projectId: string;
+  plannedDate: string;
+  calledFromDayPlanner = false;
   editedTask: Task;
 
   taskForm: FormGroup;
@@ -35,6 +38,7 @@ export class TaskEditComponent implements OnInit {
     private projectDetailsService: ProjectDetailsService,
     private route: ActivatedRoute,
     private router: Router,
+    private taskService: TaskService,
     private location: Location) {
   }
 
@@ -50,6 +54,8 @@ export class TaskEditComponent implements OnInit {
           this.projectCanBeChanged = params['projectId'] == null;
           this.taskId = params['taskId'];
           this.editMode = params['taskId'] != null;
+          this.plannedDate = params['dateParam'];
+          this.calledFromDayPlanner = params['dateParam'] != null;
           this.projectService.list().subscribe((projects: Project[]) => {
             this.projects = projects;
           });
@@ -78,14 +84,17 @@ export class TaskEditComponent implements OnInit {
       completed = this.editedTask.completed;
       completionDate = this.datePipe.transform(this.editedTask.completionDate, 'yyyy-MM-dd');
     }
-    if (this.projectId != null) {
+    if (!this.projectCanBeChanged) {
       projectId = this.projectId;
+    }
+    if (this.calledFromDayPlanner) {
+      plannedDate = this.plannedDate;
     }
     this.taskForm = new FormGroup({
       'name': new FormControl(name, Validators.required),
       'projectId': new FormControl({value: projectId, disabled: !this.projectCanBeChanged}, Validators.required),
       'priority': new FormControl(priority),
-      'plannedDate': new FormControl(plannedDate),
+      'plannedDate': new FormControl({value: plannedDate, disabled: this.calledFromDayPlanner}),
       'description': new FormControl(description),
       'completed': new FormControl(completed),
       'completionDate': new FormControl(completionDate)
@@ -97,6 +106,12 @@ export class TaskEditComponent implements OnInit {
       this.updateEditedTaskFieldsFromForm();
       this.projectDetailsService.updateTask(this.editedTask).subscribe(() => {
         this.alertService.success('Task updated!');
+      });
+    } else if (this.calledFromDayPlanner) {
+      let submittedTask: Task = this.taskForm.value;
+      submittedTask.plannedDate = new Date(this.taskForm.get('plannedDate').value);
+      this.taskService.createForProject(this.taskForm.get('projectId').value, this.taskForm.value).subscribe(() => {
+        this.alertService.success('Task Created');
       });
     } else {
       this.projectDetailsService.createTaskForProject(this.taskForm.value);
