@@ -3,14 +3,19 @@ package hu.rkoszegi.balancer.services;
 
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.Task;
+import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.repositories.TaskRepository;
+import hu.rkoszegi.balancer.services.exception.BadRequestException;
+import hu.rkoszegi.balancer.web.dto.TaskDTO;
+import hu.rkoszegi.balancer.web.mapper.TaskMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
+import java.util.Optional;
 
 
 @Service
@@ -20,12 +25,14 @@ public class TaskServiceImpl implements TaskService {
     private ProjectRepository projectRepository;
     private TaskRepository taskRepository;
     private UserService userService;
+    private TaskMapper taskMapper;
 
 
-    public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService) {
+    public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService, TaskMapper taskMapper) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.userService = userService;
+        this.taskMapper = taskMapper;
     }
 
     @Override
@@ -44,44 +51,104 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void saveTask(Task task) {
         log.debug("saveTask called");
-        task.setUser(userService.getLoggedInUser());
         taskRepository.save(task);
     }
 
     @Override
     public Iterable<Task> findAllTask() {
         log.debug("findAllTask called");
-        return taskRepository.findAllByUser(userService.getLoggedInUser());
+        return taskRepository.findAllByAssignedUser(userService.getLoggedInUser());
     }
 
     @Override
     public void deleteTask(String id) {
         log.debug("deleteTask called");
-        taskRepository.deleteById(id);
+        Optional<Task> taskOptional = taskRepository.findById(id);
+        if(taskOptional.isPresent()) {
+            Task deletedTask = taskOptional.get();
+            User loggedInUser = userService.getLoggedInUser();
+            if (userCanModifyTask(loggedInUser, deletedTask)) {
+                taskRepository.deleteById(id);
+            } else {
+                throw new BadRequestException("User can't delete this task");
+            }
+        } else {
+            throw new BadRequestException("Task does not exists!");
+        }
     }
 
     @Override
     public Iterable<Task> findTasksForDate(LocalDate date) {
         log.debug("findTasksForDate called");
         LocalDate to = date.plusDays(1);
-        return taskRepository.findAllByUserAndPlannedDateBetween(
+        return taskRepository.findAllByAssignedUserAndPlannedDateBetween(
                 userService.getLoggedInUser(),
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
                 to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(TaskDTO taskDTO) {
         log.debug("updateTask called");
-        Task storedTask = getTaskById(task.getId());
-        storedTask.setCompleted(task.getCompleted());
-        storedTask.setCompletionDate(task.getCompletionDate());
-        storedTask.setDescription(task.getDescription());
-        storedTask.setName(task.getName());
-        storedTask.setPlannedDate(task.getPlannedDate());
-        storedTask.setPriority(task.getPriority());
-        storedTask.setAssignedToDate(task.isAssignedToDate());
-        storedTask.setEstimatedTime(task.getEstimatedTime());
-        saveTask(task);
+        Task storedTask = getTaskById(taskDTO.getId());
+        User loggedInUser = userService.getLoggedInUser();
+        if(userCanModifyTask(loggedInUser, storedTask)) {
+            storedTask.setCompleted(taskDTO.isCompleted());
+            storedTask.setCompletionDate(taskDTO.getCompletionDate());
+            storedTask.setDescription(taskDTO.getDescription());
+            storedTask.setName(taskDTO.getName());
+            storedTask.setPlannedDate(taskDTO.getPlannedDate());
+            storedTask.setPriority(taskDTO.getPriority());
+            storedTask.setAssignedToDate(taskDTO.isAssignedToDate());
+            storedTask.setEstimatedTime(taskDTO.getEstimatedTime());
+            saveTask(storedTask);
+        } else {
+            throw new BadRequestException("User can't modify this task");
+        }
+    }
+
+    private boolean userCanModifyTask(User user, Task task) {
+        return user.equals(task.getAssignedUser()) || user.equals(task.getProject().getOwner());
+    }
+
+    @Override
+    public TaskDTO createTask(String projectId, Task task) {
+        log.debug("createTask called");
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
+        if(projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            User loggedInUser = userService.getLoggedInUser();
+            if (userCanCreateTask(loggedInUser, project)) {
+                task.setAssignedUser(loggedInUser);
+                task.setProject(project);
+                taskRepository.save(task);
+                project.getTasks().add(task);
+                projectRepository.save(project);
+                return taskMapper.toDto(task);
+            } else {
+                throw new BadRequestException("User can't create the task");
+            }
+        } else {
+            throw new BadRequestException("Project does not exists!");
+        }
+    }
+
+    @Override
+    public Date completeTask(String taskId) {
+        log.debug("completeTask called");
+        Task storedTask = getTaskById(taskId);
+        User loggedInUser = userService.getLoggedInUser();
+        if(userCanModifyTask(loggedInUser, storedTask)) {
+            storedTask.setCompleted(true);
+            storedTask.setCompletionDate(new Date());
+            saveTask(storedTask);
+            return storedTask.getCompletionDate();
+        } else {
+            throw new BadRequestException("User can't update this task");
+        }
+    }
+
+    private boolean userCanCreateTask(User user, Project project) {
+        return project.getMembers().contains(user) || project.getOwner().equals(user);
     }
 }

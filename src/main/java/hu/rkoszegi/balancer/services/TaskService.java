@@ -2,8 +2,10 @@ package hu.rkoszegi.balancer.services;
 
 
 import hu.rkoszegi.balancer.model.Task;
+import hu.rkoszegi.balancer.web.dto.TaskDTO;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public interface TaskService {
     Iterable<Task> listProjectTasks(String projectID);
@@ -18,5 +20,9 @@ public interface TaskService {
 
     Iterable<Task> findTasksForDate(LocalDate date);
 
-    void updateTask(Task task);
+    void updateTask(TaskDTO taskDTO);
+
+    TaskDTO createTask(String projectId, Task task);
+
+    Date completeTask(String taskId);
 }

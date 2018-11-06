@@ -9,7 +9,7 @@ import java.time.Instant;
 
 public interface TaskRepository extends CrudRepository<Task, String> {
 
-    Iterable<Task> findAllByUserAndPlannedDateBetween(User user, Instant from, Instant to);
+    Iterable<Task> findAllByAssignedUserAndPlannedDateBetween(User user, Instant from, Instant to);
 
-    Iterable<Task> findAllByUser(User user);
+    Iterable<Task> findAllByAssignedUser(User user);
 }

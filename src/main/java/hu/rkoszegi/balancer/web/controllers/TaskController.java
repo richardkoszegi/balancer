@@ -1,9 +1,8 @@
 package hu.rkoszegi.balancer.web.controllers;
 
-import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.Task;
-import hu.rkoszegi.balancer.services.ProjectService;
 import hu.rkoszegi.balancer.services.TaskService;
+import hu.rkoszegi.balancer.web.dto.TaskDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,13 +20,11 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class TaskController {
 
-    private ProjectService projectService;
     private TaskService taskService;
 
 
     @Autowired
-    public TaskController(ProjectService projectService, TaskService taskService) {
-        this.projectService = projectService;
+    public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
@@ -50,32 +47,21 @@ public class TaskController {
         return taskService.findAllTask();
     }
 
-    @RequestMapping(value = "/task", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createTask(@RequestBody Task task){
-        log.debug("createTask called");
-        taskService.saveTask(task);
-        return new ResponseEntity<>(task, HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/project/{projectId}/tasks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addTaskToProject(@PathVariable String projectId, @RequestBody Task task){
+    public TaskDTO addTaskToProject(@PathVariable String projectId, @RequestBody Task task){
         log.debug("addTaskToProject called");
-        taskService.saveTask(task);
-        Project project = projectService.getProjectById(projectId);
-        project.getTasks().add(task);
-        projectService.saveProject(project);
-        return new ResponseEntity<>(task, HttpStatus.OK);
+        return taskService.createTask(projectId, task);
     }
 
     @RequestMapping(value = "/task", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateTask(@RequestBody Task task){
+    public ResponseEntity updateTask(@RequestBody TaskDTO task){
         log.debug("updateTask called");
         taskService.updateTask(task);
         return new ResponseEntity<>("Task updated successfully", HttpStatus.OK);
     }
 
     @RequestMapping(value = "/task/batch", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateTask(@RequestBody List<Task> tasks){
+    public ResponseEntity updateTask(@RequestBody List<TaskDTO> tasks){
         log.debug("updateTask called");
         tasks.forEach(taskService::updateTask);
         return new ResponseEntity<>("Task updated successfully", HttpStatus.OK);
@@ -84,11 +70,8 @@ public class TaskController {
     @RequestMapping(value = "/task/{id}/complete", method = RequestMethod.PUT)
     public ResponseEntity<Date> completeTask(@PathVariable String id){
         log.debug("completeTask called");
-        Task storedTask = taskService.getTaskById(id);
-        storedTask.setCompleted(true);
-        storedTask.setCompletionDate(new Date());
-        taskService.saveTask(storedTask);
-        return new ResponseEntity<>(storedTask.getCompletionDate(), HttpStatus.OK);
+        Date completionDate = taskService.completeTask(id);
+        return ResponseEntity.ok(completionDate);
     }
 
     @RequestMapping(value="/task/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)

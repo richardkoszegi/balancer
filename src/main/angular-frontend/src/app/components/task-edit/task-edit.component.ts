@@ -106,18 +106,20 @@ export class TaskEditComponent implements OnInit {
       this.updateEditedTaskFieldsFromForm();
       this.projectDetailsService.updateTask(this.editedTask).subscribe(() => {
         this.alertService.success('Task updated!');
+        this.location.back();
       });
     } else if (this.calledFromDayPlanner) {
       let submittedTask: Task = this.taskForm.value;
       submittedTask.plannedDate = new Date(this.taskForm.get('plannedDate').value);
       this.taskService.createForProject(this.taskForm.get('projectId').value, this.taskForm.value).subscribe(() => {
         this.alertService.success('Task Created');
+        this.location.back();
       });
     } else {
       this.projectDetailsService.createTaskForProject(this.taskForm.value);
       this.taskForm.reset();
+      this.location.back();
     }
-    this.location.back();
   }
 
   private updateEditedTaskFieldsFromForm() {

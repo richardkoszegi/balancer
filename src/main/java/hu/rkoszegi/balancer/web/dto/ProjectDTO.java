@@ -20,5 +20,5 @@ public class ProjectDTO {
 
     private List<String> memberNames = new ArrayList<>();
 
-    private Set<Task> tasks = new HashSet<>();
+    private Set<TaskDTO> tasks = new HashSet<>();
 }

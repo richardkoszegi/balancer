@@ -7,8 +7,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 @Data
 @Document
@@ -23,7 +22,7 @@ public class Task {
 
     private Date completionDate;
 
-    private Boolean completed;
+    private boolean completed;
 
     private String description;
 
@@ -34,8 +33,21 @@ public class Task {
     private int estimatedTime;
 
     @DBRef
-    private User user;
+    private User assignedUser;
 
     @DBRef
-    private Set<Task> subTasks = new HashSet<>();
+    private Project project;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

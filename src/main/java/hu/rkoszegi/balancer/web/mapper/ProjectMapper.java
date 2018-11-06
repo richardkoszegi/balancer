@@ -4,7 +4,7 @@ import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.web.dto.ProjectDTO;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {TaskMapper.class})
 public abstract class ProjectMapper {
 
     @Mappings({
