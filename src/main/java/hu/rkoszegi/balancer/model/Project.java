@@ -6,9 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Document
@@ -24,7 +22,10 @@ public class Project {
     private String description;
 
     @DBRef
-    private User user;
+    private User owner;
+
+    @DBRef
+    private List<User> members = new ArrayList<>();
 
     @DBRef
     private Set<Task> tasks = new HashSet<>();

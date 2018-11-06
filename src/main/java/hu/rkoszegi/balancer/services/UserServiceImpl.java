@@ -70,4 +70,9 @@ public class UserServiceImpl implements UserService {
         user.setRole(newUserRole);
         userRepository.save(user);
     }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userRepository.findUserByUsername(username);
+    }
 }

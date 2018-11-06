@@ -7,5 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ProjectRepository extends CrudRepository<Project, String> {
 
-    Iterable<Project> findAllByUser(User user);
+    Iterable<Project> findAllByOwner(User user);
+
+    Iterable<Project> findAllByMembersContaining(User user);
 }

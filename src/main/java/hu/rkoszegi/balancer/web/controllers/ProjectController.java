@@ -3,6 +3,7 @@ package hu.rkoszegi.balancer.web.controllers;
 
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.services.ProjectService;
+import hu.rkoszegi.balancer.web.dto.ProjectDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class ProjectController {
     }
 
     @RequestMapping(method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<Project> listAllProject(){
+    public Iterable<ProjectDTO> listAllProject(){
         log.debug("listAllProject called");
         return projectService.listAllProjects();
     }
@@ -37,18 +38,21 @@ public class ProjectController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createProject(@RequestBody Project project){
-        projectService.saveProject(project);
+        projectService.createProject(project);
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateProject(@PathVariable String id, @RequestBody Project project){
-        Project storedProject = projectService.getProjectById(id);
-        storedProject.setName(project.getName());
-        storedProject.setDeadline(project.getDeadline());
-        storedProject.setDescription(project.getDescription());
-        projectService.saveProject(project);
+    @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateProject(@RequestBody ProjectDTO project){
+        projectService.updateProject(project);
         return new ResponseEntity<>("Project updated successfully", HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/{id}/members", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateProjectMembers(@PathVariable String id, @RequestBody Iterable<String> memberNames){
+        projectService.updateProjectMembers(id, memberNames);
+        return new ResponseEntity<>("Project members updated successfully", HttpStatus.OK);
+
     }
 
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)

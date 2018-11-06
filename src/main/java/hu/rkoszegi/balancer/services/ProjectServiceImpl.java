@@ -1,10 +1,16 @@
 package hu.rkoszegi.balancer.services;
 
 import hu.rkoszegi.balancer.model.Project;
+import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
+import hu.rkoszegi.balancer.web.dto.ProjectDTO;
+import hu.rkoszegi.balancer.web.mapper.ProjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.MethodNotAllowedException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -15,17 +21,25 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectRepository projectRepository;
     private TaskService taskService;
     private UserService userService;
+    private ProjectMapper projectMapper;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, TaskService taskService, UserService userService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, TaskService taskService, UserService userService, ProjectMapper projectMapper) {
         this.projectRepository = projectRepository;
         this.taskService = taskService;
         this.userService = userService;
+        this.projectMapper = projectMapper;
     }
 
     @Override
-    public Iterable<Project> listAllProjects() {
+    public Iterable<ProjectDTO> listAllProjects() {
         log.debug("listAllProjects called");
-        return projectRepository.findAllByUser(userService.getLoggedInUser());
+        List<ProjectDTO> result = new ArrayList<>();
+        User loggedInUser = userService.getLoggedInUser();
+        Iterable<Project> ownedProjects = projectRepository.findAllByOwner(loggedInUser);
+        ownedProjects.forEach(project -> result.add(projectMapper.toDto(project)));
+        Iterable<Project> memberProjects = projectRepository.findAllByMembersContaining(loggedInUser);
+        memberProjects.forEach(project -> result.add(projectMapper.toDto(project)));
+        return result;
     }
 
     @Override
@@ -36,9 +50,28 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public void createProject(Project project) {
+        log.debug("createProject called");
+        project.setOwner(userService.getLoggedInUser());
+        projectRepository.save(project);
+    }
+
+    @Override
+    public void updateProject(ProjectDTO dto) {
+        log.debug("updateProject called");
+        if(!dto.getOwnerName().equals(userService.getLoggedInUser().getUsername())) {
+            throw new MethodNotAllowedException("update project for this user", null);
+        }
+        Project storedProject = getProjectById(dto.getId());
+        storedProject.setName(dto.getName());
+        storedProject.setDeadline(dto.getDeadline());
+        storedProject.setDescription(dto.getDescription());
+        projectRepository.save(storedProject);
+    }
+
+    @Override
     public void saveProject(Project project) {
         log.debug("saveProject called");
-        project.setUser(userService.getLoggedInUser());
         projectRepository.save(project);
     }
 
@@ -46,7 +79,26 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(String id) {
         log.debug("deleteProject called");
         Project project = getProjectById(id);
+        if(!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
+            throw new MethodNotAllowedException("update project members for this user", null);
+        }
         project.getTasks().forEach(task -> taskService.deleteTask(task.getId()));
         projectRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateProjectMembers(String id, Iterable<String> memberNames) {
+        log.debug("updateProjectMembers called");
+        Project project = getProjectById(id);
+        if(!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
+            throw new MethodNotAllowedException("update project members for this user", null);
+        }
+        List<User> newMemberList = new ArrayList<>();
+        for (String username: memberNames) {
+            User user = userService.getUserByUsername(username);
+            newMemberList.add(user);
+        }
+        project.setMembers(newMemberList);
+        projectRepository.save(project);
     }
 }

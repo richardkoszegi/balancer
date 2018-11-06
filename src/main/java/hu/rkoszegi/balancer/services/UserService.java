@@ -18,4 +18,6 @@ public interface UserService {
     void deleteUser(String userName);
 
     void chaneUserRole(String userName, UserRole newUserRole);
+
+    User getUserByUsername(String username);
 }
