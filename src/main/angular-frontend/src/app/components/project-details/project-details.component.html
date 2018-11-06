@@ -58,7 +58,8 @@
       </thead>
       <tr *ngFor="let task of project.tasks" [ngClass]="{completedTaskRow: task.completed === true}">
         <td>
-          <button *ngIf="!task.completed" class="btn btn-success" (click)="onTaskCompleted(task)"><span class="glyphicon glyphicon-ok-sign"></span></button>
+          <button *ngIf="!task.completed" class="btn btn-success" (click)="onTaskCompleted(task)"><span
+            class="glyphicon glyphicon-ok-sign"></span></button>
 
           <span *ngIf="task.completed" class="glyphicon glyphicon-ok"></span>
         </td>
@@ -68,7 +69,7 @@
         <td>{{task.description}}</td>
         <td>{{task.completionDate | date:'yyyy. MM. dd.'}}</td>
         <td>
-          <button class="btn btn-primary" (click)="onEditTask(task.id)">Edit </button>
+          <button class="btn btn-primary" (click)="onEditTask(task.id)">Edit</button>
         </td>
         <td>
           <button (click)="deleteTask(task)" class="btn btn-danger">Delete</button>
@@ -77,6 +78,58 @@
     </table>
 
     <button class="btn btn-success" (click)="onAddTask()">Add Task</button>
+
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3>Users</h3>
+  </div>
+  <div *ngIf="project" class="panel-body">
+    <h4>Owner: {{project.ownerName}}{{isUserOwner()? ' (You)':''}}</h4>
+    <hr/>
+    <h4>Members</h4>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Name</th>
+      </tr>
+      </thead>
+      <tr *ngFor="let memberName of project.memberNames">
+        <td>{{memberName}}</td>
+        <td *ngIf="isUserOwner()">
+          <button (click)="removeUserFromMembers(memberName)" class="btn btn-danger">Delete</button>
+        </td>
+      </tr>
+    </table>
+
+    <div *ngIf="isUserOwner()" class="row">
+      <div class="col-xs-12">
+              <label for="memberInput" class="control-label">Project</label>
+          <div class="row">
+            <div class="col-xs-8">
+              <select
+                #memberInput
+                id="memberInput"
+                class="form-control">
+                <option value="">Select one</option>
+                <option *ngFor="let user of selectableUsers">{{user}}</option>
+              </select>
+            </div>
+            <div class="col-xs-4">
+              <button type="button" (click)="addUserToMembers(memberInput.value)" class="btn btn-success">Add</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xs-12">
+              <button (click)="onUpdateMembers()" [disabled]="!membersChanged" class="btn btn-success">Update Members</button>
+            </div>
+          </div>
+      </div>
+    </div>
+
 
   </div>
 </div>

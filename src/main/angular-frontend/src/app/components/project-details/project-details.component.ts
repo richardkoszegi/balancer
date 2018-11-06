@@ -7,6 +7,7 @@ import {Task} from "../../model/Task";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {ProjectDetailsService} from "../../services/ProjectDetailsService";
 import {UserService} from "../../services/UserService";
+import {ProjectService} from "../../services/ProjectService";
 
 @Component({
   selector: 'app-project-details',
@@ -19,9 +20,13 @@ export class ProjectDetailsComponent implements OnInit {
 
   projectForm: FormGroup;
 
+  selectableUsers: string[] = [];
+  membersChanged = false;
+
 
   constructor(private alertService: AlertService,
               private projectDetailsService: ProjectDetailsService,
+              private projectService: ProjectService,
               private userService: UserService,
               private route: ActivatedRoute,
               private router: Router,
@@ -34,6 +39,10 @@ export class ProjectDetailsComponent implements OnInit {
         this.projectDetailsService.initTasks(projectId).subscribe( project => {
           this.project = project;
           this.initForm();
+
+          if(this.isUserOwner()) {
+            this.initSelectableUsers();
+          }
         });
       });
   }
@@ -44,6 +53,20 @@ export class ProjectDetailsComponent implements OnInit {
       'deadline': new FormControl({value: this.project.deadline, disabled: !this.isUserOwner()}, Validators.required),
       'description': new FormControl({value: this.project.description, disabled: !this.isUserOwner()})
     });
+  }
+
+  private initSelectableUsers() {
+    this.userService.getAllUserName().subscribe( (userNames: string[]) => {
+      this.selectableUsers = userNames;
+      for(const userName of this.project.memberNames) {
+        this.removeUserFromSelectableUsers(userName);
+      }
+      this.removeUserFromSelectableUsers(this.project.ownerName);
+    })
+  }
+
+  private removeUserFromSelectableUsers(user: string) {
+    this.selectableUsers.splice(this.selectableUsers.indexOf(user), 1);
   }
 
   modifyProject() {
@@ -86,4 +109,23 @@ export class ProjectDetailsComponent implements OnInit {
   isUserOwner(): boolean {
     return this.userService.isUserLoggedIn() && this.project.ownerName === this.userService.user.username;
   }
+
+  addUserToMembers(userName: string) {
+    this.removeUserFromSelectableUsers(userName);
+    this.project.memberNames.push(userName);
+    this.membersChanged = true;
+  }
+
+  removeUserFromMembers(userName: string) {
+    this.project.memberNames.splice(this.project.memberNames.indexOf(userName), 1);
+    this.selectableUsers.push(userName);
+    this.membersChanged = true;
+  }
+
+  onUpdateMembers() {
+    this.projectService.updateProjectMembers(this.project).subscribe( () => {
+      this.alertService.success('Members updated!');
+    });
+  }
+
 }

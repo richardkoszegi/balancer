@@ -29,7 +29,10 @@ export class ProjectService{
   }
 
   public modifyProject(project: Project): Observable<any> {
-    return this.httpClient.put(`${this.URL}/`, project, {responseType: "text", withCredentials: true})
+    return this.httpClient.put(`${this.URL}/`, project, {responseType: "text", withCredentials: true});
   }
 
+  public updateProjectMembers(project: Project): Observable<any> {
+    return this.httpClient.put(`${this.URL}/${project.id}/members`, project.memberNames, {responseType: "text", withCredentials: true});
+  }
 }

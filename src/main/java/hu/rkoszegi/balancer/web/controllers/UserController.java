@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -49,6 +51,14 @@ public class UserController {
     @RequestMapping(value = "/loggedInUser", method = RequestMethod.GET)
     public UserDTO getLoggedInUser() {
         return userMapper.mapUserToDto(userService.getLoggedInUser());
+    }
+
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    public List<String> getAllUserNames() {
+        Iterable<User> users = userService.getAllUser();
+        List<String> userNames = new ArrayList<>();
+        users.forEach(user -> userNames.add(user.getUsername()));
+        return userNames;
     }
 
 
