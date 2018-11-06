@@ -6,6 +6,7 @@ import {AlertService} from "../../services/AlertService";
 import {Task} from "../../model/Task";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {ProjectDetailsService} from "../../services/ProjectDetailsService";
+import {UserService} from "../../services/UserService";
 
 @Component({
   selector: 'app-project-details',
@@ -21,6 +22,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   constructor(private alertService: AlertService,
               private projectDetailsService: ProjectDetailsService,
+              private userService: UserService,
               private route: ActivatedRoute,
               private router: Router,
               private location: Location) { }
@@ -38,9 +40,9 @@ export class ProjectDetailsComponent implements OnInit {
 
   initForm() {
     this.projectForm = new FormGroup({
-      'name': new FormControl(this.project.name, Validators.required),
-      'deadline': new FormControl(this.project.deadline, Validators.required),
-      'description': new FormControl(this.project.description)
+      'name': new FormControl({value: this.project.name, disabled: !this.isUserOwner()}, Validators.required),
+      'deadline': new FormControl({value: this.project.deadline, disabled: !this.isUserOwner()}, Validators.required),
+      'description': new FormControl({value: this.project.description, disabled: !this.isUserOwner()})
     });
   }
 
@@ -79,5 +81,9 @@ export class ProjectDetailsComponent implements OnInit {
 
   onEditTask(taskId: string) {
     this.router.navigate(['projects', this.project.id, 'tasks', taskId, 'edit']);
+  }
+
+  isUserOwner(): boolean {
+    return this.userService.isUserLoggedIn() && this.project.ownerName === this.userService.user.username;
   }
 }

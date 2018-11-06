@@ -10,13 +10,10 @@ export class Project {
 
   description: string;
 
+  ownerName: string;
+
+  memberNames: string[];
+
   tasks: Task[];
 
-  public copyInto(data) {
-    this.id = data.id;
-    this.name = data.name;
-    this.deadline = data.deadline;
-    this.description = data.description;
-    this.tasks = data.tasks;
-  }
 }

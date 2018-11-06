@@ -50,10 +50,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void createProject(Project project) {
+    public ProjectDTO findProjectById(String id) {
+        log.debug("findProjectById called");
+        Project project = getProjectById(id);
+        return projectMapper.toDto(project);
+    }
+
+    @Override
+    public ProjectDTO createProject(Project project) {
         log.debug("createProject called");
         project.setOwner(userService.getLoggedInUser());
         projectRepository.save(project);
+        return projectMapper.toDto(project);
     }
 
     @Override

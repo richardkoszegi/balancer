@@ -9,7 +9,9 @@ public interface ProjectService {
 
     Project getProjectById(String id);
 
-    void createProject(Project project);
+    ProjectDTO findProjectById(String id);
+
+    ProjectDTO createProject(Project project);
 
     void updateProject(ProjectDTO dto);
 

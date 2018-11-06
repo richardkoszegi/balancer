@@ -31,15 +31,15 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/{id}", method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Project getProject(@PathVariable String id){
+    public ProjectDTO getProject(@PathVariable String id){
         log.debug("getProject called");
-        return projectService.getProjectById(id);
+        return projectService.findProjectById(id);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createProject(@RequestBody Project project){
-        projectService.createProject(project);
-        return new ResponseEntity<>(project, HttpStatus.OK);
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody Project project){
+        ProjectDTO dto = projectService.createProject(project);
+        return ResponseEntity.ok(dto);
     }
 
     @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
