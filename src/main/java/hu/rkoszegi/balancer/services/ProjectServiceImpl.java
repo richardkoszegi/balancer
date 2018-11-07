@@ -9,6 +9,8 @@ import hu.rkoszegi.balancer.web.mapper.ProjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.MethodNotAllowedException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,86 +34,84 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Iterable<ProjectDTO> listAllProjects() {
+    public Flux<ProjectDTO> listAllProjects() {
         log.debug("listAllProjects called");
-        List<ProjectDTO> result = new ArrayList<>();
         User loggedInUser = userService.getLoggedInUser();
-        Iterable<Project> ownedProjects = projectRepository.findAllByOwner(loggedInUser).collectList().block();
-        ownedProjects.forEach(project -> result.add(projectMapper.toDto(project)));
-        Iterable<Project> memberProjects = projectRepository.findAllByMembersContaining(loggedInUser).collectList().block();
-        memberProjects.forEach(project -> result.add(projectMapper.toDto(project)));
-        return result;
+        Flux<Project> ownedProjects = projectRepository.findAllByOwner(loggedInUser);
+        Flux<Project> memberProjects = projectRepository.findAllByMembersContaining(loggedInUser);
+        return Flux.concat(ownedProjects.map(projectMapper::toDto), memberProjects.map(projectMapper::toDto));
     }
 
     @Override
-    public Project getProjectById(String id) {
-        log.debug("getProjectById called");
-        Optional<Project> project = projectRepository.findById(id).blockOptional();
-        return project.orElse(null);
-    }
-
-    @Override
-    public ProjectDTO findProjectById(String id) {
+    public Mono<ProjectDTO> findProjectById(String id) {
         log.debug("findProjectById called");
-        Project project = getProjectById(id);
-        return projectMapper.toDto(project);
+        Mono<Project> project = projectRepository.findById(id);
+        return project.map(projectMapper::toDto);
     }
 
     @Override
-    public ProjectDTO createProject(Project project) {
+    public Mono<ProjectDTO> createProject(Project project) {
         log.debug("createProject called");
         project.setOwner(userService.getLoggedInUser());
-        projectRepository.save(project).block();
-        return projectMapper.toDto(project);
+        Mono<Project> inserted = projectRepository.save(project);
+        return inserted.map(projectMapper::toDto);
     }
 
     @Override
-    public void updateProject(ProjectDTO dto) {
+    public Mono<Void> updateProject(ProjectDTO dto) {
         log.debug("updateProject called");
-        if(!dto.getOwnerName().equals(userService.getLoggedInUser().getUsername())) {
+        if (!dto.getOwnerName().equals(userService.getLoggedInUser().getUsername())) {
             throw new MethodNotAllowedException("update project for this user", null);
         }
-        Project storedProject = getProjectById(dto.getId());
+        Optional<Project> storedProjectOptional = projectRepository.findById(dto.getId()).blockOptional();
+        if (!storedProjectOptional.isPresent()) {
+            throw new BadRequestException("Project not found");
+        }
+        Project storedProject = storedProjectOptional.get();
         storedProject.setName(dto.getName());
         storedProject.setDeadline(dto.getDeadline());
         storedProject.setDescription(dto.getDescription());
-        projectRepository.save(storedProject).block();
+        return projectRepository.save(storedProject).then();
     }
 
     @Override
-    public void saveProject(Project project) {
-        log.debug("saveProject called");
-        projectRepository.save(project).block();
-    }
-
-    @Override
-    public void deleteProject(String id) {
+    public Mono<Void> deleteProject(String id) {
         log.debug("deleteProject called");
-        Project project = getProjectById(id);
-        if(!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
+        Optional<Project> projectOptional = projectRepository.findById(id).blockOptional();
+        if (!projectOptional.isPresent()) {
+            throw new BadRequestException("Project not found");
+        }
+
+        Project project = projectOptional.get();
+        if (!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
             throw new MethodNotAllowedException("update project members for this user", null);
         }
         project.getTasks().forEach(task -> taskService.deleteTask(task.getId()));
-        projectRepository.deleteById(id).block();
+        return projectRepository.deleteById(id).then();
     }
 
     @Override
-    public void updateProjectMembers(String id, Iterable<String> memberNames) {
+    public Mono<Void> updateProjectMembers(String id, Iterable<String> memberNames) {
         log.debug("updateProjectMembers called");
-        Project project = getProjectById(id);
-        if(!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
+        Optional<Project> projectOptional = projectRepository.findById(id).blockOptional();
+        if (!projectOptional.isPresent()) {
+            throw new BadRequestException("Project not found");
+        }
+
+        Project project = projectOptional.get();
+        if (!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
             throw new MethodNotAllowedException("update project members for this user", null);
         }
         List<User> newMemberList = new ArrayList<>();
-        for (String username: memberNames) {
+        for (String username : memberNames) {
             User user = userService.getUserByUsername(username);
-            if(user != null) {
+            if (user != null) {
                 newMemberList.add(user);
             } else {
                 throw new BadRequestException("User '" + username + "' does not exists");
             }
         }
         project.setMembers(newMemberList);
-        projectRepository.save(project).block();
+        return projectRepository.save(project).then();
     }
 }
