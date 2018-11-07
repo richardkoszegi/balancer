@@ -31,19 +31,19 @@ public class UserServiceImpl implements UserService {
             throw new UserNameAlreadyExistsException("Username already exists");
         }
         User user = new User(accountDto.getUsername(), passwordEncoder.encode(accountDto.getPassword()), UserRole.ROLE_USER);
-        return userRepository.save(user);
+        return userRepository.save(user).block();
     }
 
     @Override
     public boolean usernameExists(String userName) {
-        User user = userRepository.findUserByUsername(userName);
+        User user = userRepository.findUserByUsername(userName).block();
         return user!= null;
     }
 
     @Override
     public User getLoggedInUser() {
         String userName = getLoggedInUserName();
-        return userRepository.findUserByUsername(userName);
+        return userRepository.findUserByUsername(userName).block();
     }
 
     private String getLoggedInUserName() {
@@ -53,26 +53,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Iterable<User> getAllUser() {
-        return userRepository.findAll();
+        return userRepository.findAll().collectList().block();
     }
 
     @Override
     public void deleteUser(String userName) {
-        User user = userRepository.findUserByUsername(userName);
+        User user = userRepository.findUserByUsername(userName).block();
         Iterable<Project> userProjects = user.getProjects();
         userProjects.forEach(project -> projectRepository.delete(project));
-        userRepository.delete(user);
+        userRepository.delete(user).block();
     }
 
     @Override
     public void chaneUserRole(String userName, UserRole newUserRole) {
-        User user = userRepository.findUserByUsername(userName);
+        User user = userRepository.findUserByUsername(userName).block();
         user.setRole(newUserRole);
-        userRepository.save(user);
+        userRepository.save(user).block();
     }
 
     @Override
     public User getUserByUsername(String username) {
-        return userRepository.findUserByUsername(username);
+        return userRepository.findUserByUsername(username).block();
     }
 }

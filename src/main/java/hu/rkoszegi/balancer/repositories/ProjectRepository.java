@@ -2,12 +2,13 @@ package hu.rkoszegi.balancer.repositories;
 
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Flux;
 
 
-public interface ProjectRepository extends CrudRepository<Project, String> {
+public interface ProjectRepository extends ReactiveMongoRepository<Project, String> {
 
-    Iterable<Project> findAllByOwner(User user);
+    Flux<Project> findAllByOwner(User user);
 
-    Iterable<Project> findAllByMembersContaining(User user);
+    Flux<Project> findAllByMembersContaining(User user);
 }

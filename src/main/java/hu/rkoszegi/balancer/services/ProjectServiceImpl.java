@@ -36,9 +36,9 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("listAllProjects called");
         List<ProjectDTO> result = new ArrayList<>();
         User loggedInUser = userService.getLoggedInUser();
-        Iterable<Project> ownedProjects = projectRepository.findAllByOwner(loggedInUser);
+        Iterable<Project> ownedProjects = projectRepository.findAllByOwner(loggedInUser).collectList().block();
         ownedProjects.forEach(project -> result.add(projectMapper.toDto(project)));
-        Iterable<Project> memberProjects = projectRepository.findAllByMembersContaining(loggedInUser);
+        Iterable<Project> memberProjects = projectRepository.findAllByMembersContaining(loggedInUser).collectList().block();
         memberProjects.forEach(project -> result.add(projectMapper.toDto(project)));
         return result;
     }
@@ -46,7 +46,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Project getProjectById(String id) {
         log.debug("getProjectById called");
-        Optional<Project> project = projectRepository.findById(id);
+        Optional<Project> project = projectRepository.findById(id).blockOptional();
         return project.orElse(null);
     }
 
@@ -61,7 +61,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDTO createProject(Project project) {
         log.debug("createProject called");
         project.setOwner(userService.getLoggedInUser());
-        projectRepository.save(project);
+        projectRepository.save(project).block();
         return projectMapper.toDto(project);
     }
 
@@ -75,13 +75,13 @@ public class ProjectServiceImpl implements ProjectService {
         storedProject.setName(dto.getName());
         storedProject.setDeadline(dto.getDeadline());
         storedProject.setDescription(dto.getDescription());
-        projectRepository.save(storedProject);
+        projectRepository.save(storedProject).block();
     }
 
     @Override
     public void saveProject(Project project) {
         log.debug("saveProject called");
-        projectRepository.save(project);
+        projectRepository.save(project).block();
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new MethodNotAllowedException("update project members for this user", null);
         }
         project.getTasks().forEach(task -> taskService.deleteTask(task.getId()));
-        projectRepository.deleteById(id);
+        projectRepository.deleteById(id).block();
     }
 
     @Override
@@ -112,6 +112,6 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
         project.setMembers(newMemberList);
-        projectRepository.save(project);
+        projectRepository.save(project).block();
     }
 }

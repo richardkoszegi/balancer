@@ -1,9 +1,10 @@
 package hu.rkoszegi.balancer.repositories;
 
 import hu.rkoszegi.balancer.model.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Mono;
 
-public interface UserRepository extends CrudRepository<User, String> {
+public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
-    User findUserByUsername(String userName);
+    Mono<User> findUserByUsername(String userName);
 }

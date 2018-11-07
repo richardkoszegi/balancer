@@ -40,37 +40,37 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Iterable<Task> listProjectTasks(String projectID) {
         log.debug("getProjectTasks called");
-        Project project = projectRepository.findById(projectID).orElse(null);
+        Project project = projectRepository.findById(projectID).blockOptional().orElse(null);
         return project != null ? project.getTasks() : null;
     }
 
     @Override
     public Task getTaskById(String taskID) {
         log.debug("getTaskById called");
-        return taskRepository.findById(taskID).orElse(null);
+        return taskRepository.findById(taskID).blockOptional().orElse(null);
     }
 
     @Override
     public void saveTask(Task task) {
         log.debug("saveTask called");
-        taskRepository.save(task);
+        taskRepository.save(task).block();
     }
 
     @Override
     public Iterable<Task> findAllTask() {
         log.debug("findAllTask called");
-        return taskRepository.findAllByAssignedUser(userService.getLoggedInUser());
+        return taskRepository.findAllByAssignedUser(userService.getLoggedInUser()).collectList().block();
     }
 
     @Override
     public void deleteTask(String id) {
         log.debug("deleteTask called");
-        Optional<Task> taskOptional = taskRepository.findById(id);
+        Optional<Task> taskOptional = taskRepository.findById(id).blockOptional();
         if (taskOptional.isPresent()) {
             Task deletedTask = taskOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanModifyTask(loggedInUser, deletedTask)) {
-                taskRepository.deleteById(id);
+                taskRepository.deleteById(id).block();
             } else {
                 throw new BadRequestException("User can't delete this task");
             }
@@ -86,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
         Iterable<Task> tasks = taskRepository.findAllByAssignedUserAndPlannedDateBetween(
                 userService.getLoggedInUser(),
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
-                to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
+                to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant()).collectList().block();
         List<TaskDTO> resultList = new ArrayList<>();
         tasks.forEach(task -> resultList.add(taskMapper.toDto(task)));
         return resultList;
@@ -127,16 +127,16 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO createTask(String projectId, Task task) {
         log.debug("createTask called");
-        Optional<Project> projectOptional = projectRepository.findById(projectId);
+        Optional<Project> projectOptional = projectRepository.findById(projectId).blockOptional();
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanCreateTask(loggedInUser, project)) {
                 task.setAssignedUser(loggedInUser);
                 task.setProject(project);
-                taskRepository.save(task);
+                taskRepository.save(task).block();
                 project.getTasks().add(task);
-                projectRepository.save(project);
+                projectRepository.save(project).block();
                 return taskMapper.toDto(task);
             } else {
                 throw new BadRequestException("User can't create the task");
