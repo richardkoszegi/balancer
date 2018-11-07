@@ -3,26 +3,26 @@ package hu.rkoszegi.balancer.services;
 
 import hu.rkoszegi.balancer.model.Task;
 import hu.rkoszegi.balancer.web.dto.TaskDTO;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.Date;
 
 public interface TaskService {
-    Iterable<Task> listProjectTasks(String projectID);
+    Flux<Task> listProjectTasks(String projectID);
 
-    Task getTaskById(String taskID);
+    Mono<Task> getTaskById(String taskID);
 
-    void saveTask(Task task);
+    Flux<Task> findAllTask();
 
-    Iterable<Task> findAllTask();
+    Mono<Void> deleteTask(String id);
 
-    void deleteTask(String id);
+    Flux<TaskDTO> findTasksForDate(LocalDate date);
 
-    Iterable<TaskDTO> findTasksForDate(LocalDate date);
+    Mono<Void> updateTask(TaskDTO taskDTO);
 
-    void updateTask(TaskDTO taskDTO);
+    Mono<TaskDTO> createTask(String projectId, TaskDTO taskDTO);
 
-    TaskDTO createTask(String projectId, Task task);
-
-    Date completeTask(String taskId);
+    Mono<Date> completeTask(String taskId);
 }

@@ -50,4 +50,21 @@ public class Task {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", plannedDate=" + plannedDate +
+                ", completionDate=" + completionDate +
+                ", completed=" + completed +
+                ", description='" + description + '\'' +
+                ", priority=" + priority +
+                ", assignedToDate=" + assignedToDate +
+                ", estimatedTime=" + estimatedTime +
+                ", assignedUser=" + assignedUser.getUsername() +
+                ", project=" + project.getId() +
+                '}';
+    }
 }

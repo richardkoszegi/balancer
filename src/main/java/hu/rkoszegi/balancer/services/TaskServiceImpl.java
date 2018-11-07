@@ -11,12 +11,12 @@ import hu.rkoszegi.balancer.web.dto.TaskDTO;
 import hu.rkoszegi.balancer.web.mapper.TaskMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -24,10 +24,10 @@ import java.util.Optional;
 @Slf4j
 public class TaskServiceImpl implements TaskService {
 
-    private ProjectRepository projectRepository;
-    private TaskRepository taskRepository;
-    private UserService userService;
-    private TaskMapper taskMapper;
+    private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
+    private final UserService userService;
+    private final TaskMapper taskMapper;
 
 
     public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService, TaskMapper taskMapper) {
@@ -38,39 +38,33 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Iterable<Task> listProjectTasks(String projectID) {
+    public Flux<Task> listProjectTasks(String projectID) {
         log.debug("getProjectTasks called");
-        Project project = projectRepository.findById(projectID).blockOptional().orElse(null);
-        return project != null ? project.getTasks() : null;
+        Mono<Project> project = projectRepository.findById(projectID);
+        return project.flatMapIterable(Project::getTasks);
     }
 
     @Override
-    public Task getTaskById(String taskID) {
+    public Mono<Task> getTaskById(String taskID) {
         log.debug("getTaskById called");
-        return taskRepository.findById(taskID).blockOptional().orElse(null);
+        return taskRepository.findById(taskID);
     }
 
     @Override
-    public void saveTask(Task task) {
-        log.debug("saveTask called");
-        taskRepository.save(task).block();
-    }
-
-    @Override
-    public Iterable<Task> findAllTask() {
+    public Flux<Task> findAllTask() {
         log.debug("findAllTask called");
-        return taskRepository.findAllByAssignedUser(userService.getLoggedInUser()).collectList().block();
+        return taskRepository.findAllByAssignedUser(userService.getLoggedInUser());
     }
 
     @Override
-    public void deleteTask(String id) {
+    public Mono<Void> deleteTask(String id) {
         log.debug("deleteTask called");
         Optional<Task> taskOptional = taskRepository.findById(id).blockOptional();
         if (taskOptional.isPresent()) {
             Task deletedTask = taskOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanModifyTask(loggedInUser, deletedTask)) {
-                taskRepository.deleteById(id).block();
+                return taskRepository.deleteById(id).then();
             } else {
                 throw new BadRequestException("User can't delete this task");
             }
@@ -80,64 +74,72 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Iterable<TaskDTO> findTasksForDate(LocalDate date) {
+    public Flux<TaskDTO> findTasksForDate(LocalDate date) {
         log.debug("findTasksForDate called");
         LocalDate to = date.plusDays(1);
-        Iterable<Task> tasks = taskRepository.findAllByAssignedUserAndPlannedDateBetween(
+        Flux<Task> tasks = taskRepository.findAllByAssignedUserAndPlannedDateBetween(
                 userService.getLoggedInUser(),
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
-                to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant()).collectList().block();
-        List<TaskDTO> resultList = new ArrayList<>();
-        tasks.forEach(task -> resultList.add(taskMapper.toDto(task)));
-        return resultList;
+                to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
+        return tasks.map(taskMapper::toDto);
     }
 
     @Override
-    public void updateTask(TaskDTO taskDTO) {
+    public Mono<Void> updateTask(TaskDTO taskDTO) {
         log.debug("updateTask called");
-        Task storedTask = getTaskById(taskDTO.getId());
+        Optional<Task> storedTaskOptional = getTaskById(taskDTO.getId()).blockOptional();
         User loggedInUser = userService.getLoggedInUser();
-        if (userCanModifyTask(loggedInUser, storedTask)) {
-            storedTask.setCompleted(taskDTO.isCompleted());
-            storedTask.setCompletionDate(taskDTO.getCompletionDate());
-            storedTask.setDescription(taskDTO.getDescription());
-            storedTask.setName(taskDTO.getName());
-            storedTask.setPlannedDate(taskDTO.getPlannedDate());
-            storedTask.setPriority(taskDTO.getPriority());
-            storedTask.setAssignedToDate(taskDTO.isAssignedToDate());
-            storedTask.setEstimatedTime(taskDTO.getEstimatedTime());
-            if (userOwnsProject(loggedInUser, storedTask.getProject())) {
-                User newAssignee = userService.getUserByUsername(taskDTO.getAssignedUser());
-                storedTask.setAssignedUser(newAssignee);
-            }
-            saveTask(storedTask);
-        } else {
+        if (!storedTaskOptional.isPresent()) {
+            throw new BadRequestException("Task does not exists");
+        }
+
+        Task storedTask = storedTaskOptional.get();
+        if (!userCanModifyTask(loggedInUser, storedTask)) {
             throw new BadRequestException("User can't modify this task");
         }
-    }
-
-    private boolean userOwnsProject(User user, Project project) {
-        return user.equals(project.getOwner());
+        storedTask.setCompleted(taskDTO.isCompleted());
+        storedTask.setCompletionDate(taskDTO.getCompletionDate());
+        storedTask.setDescription(taskDTO.getDescription());
+        storedTask.setName(taskDTO.getName());
+        storedTask.setPlannedDate(taskDTO.getPlannedDate());
+        storedTask.setPriority(taskDTO.getPriority());
+        storedTask.setAssignedToDate(taskDTO.isAssignedToDate());
+        storedTask.setEstimatedTime(taskDTO.getEstimatedTime());
+        if (userOwnsProject(loggedInUser, storedTask.getProject())) {
+            User newAssignee = userService.getUserByUsername(taskDTO.getAssignedUser());
+            storedTask.setAssignedUser(newAssignee);
+        }
+        return saveTask(storedTask).then();
     }
 
     private boolean userCanModifyTask(User user, Task task) {
         return user.equals(task.getAssignedUser()) || user.equals(task.getProject().getOwner());
     }
 
+    private boolean userOwnsProject(User user, Project project) {
+        return user.equals(project.getOwner());
+    }
+
+    private Mono<Void> saveTask(Task task) {
+        log.debug("saveTask called");
+        return taskRepository.save(task).then();
+    }
+
     @Override
-    public TaskDTO createTask(String projectId, Task task) {
+    public Mono<TaskDTO> createTask(String projectId, TaskDTO taskDTO) {
         log.debug("createTask called");
         Optional<Project> projectOptional = projectRepository.findById(projectId).blockOptional();
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanCreateTask(loggedInUser, project)) {
+                Task task = taskMapper.toEntity(taskDTO);
                 task.setAssignedUser(loggedInUser);
                 task.setProject(project);
                 taskRepository.save(task).block();
                 project.getTasks().add(task);
                 projectRepository.save(project).block();
-                return taskMapper.toDto(task);
+                return Mono.just(taskMapper.toDto(task));
             } else {
                 throw new BadRequestException("User can't create the task");
             }
@@ -147,15 +149,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Date completeTask(String taskId) {
+    public Mono<Date> completeTask(String taskId) {
         log.debug("completeTask called");
-        Task storedTask = getTaskById(taskId);
+        Optional<Task> storedTaskOptional = getTaskById(taskId).blockOptional();
+        if(!storedTaskOptional.isPresent()) {
+            throw new BadRequestException("Task does not exists!");
+        }
+
+        Task storedTask = storedTaskOptional.get();
         User loggedInUser = userService.getLoggedInUser();
         if (userCanModifyTask(loggedInUser, storedTask)) {
             storedTask.setCompleted(true);
             storedTask.setCompletionDate(new Date());
-            saveTask(storedTask);
-            return storedTask.getCompletionDate();
+            saveTask(storedTask).block();
+            return Mono.just(storedTask.getCompletionDate());
         } else {
             throw new BadRequestException("User can't update this task");
         }
