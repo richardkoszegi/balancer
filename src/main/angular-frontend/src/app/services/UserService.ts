@@ -10,7 +10,9 @@ export class UserService {
   private authenticated = false;
   user: User;
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+    this.getLoggedInUser();
+  }
 
   register(user: User): Observable<any> {
     let URL: string = BASE_URL + `/user/register`;
@@ -31,11 +33,7 @@ export class UserService {
         withCredentials: true
       }
     ).map(() => {
-        const loggedInUserURL = BASE_URL + '/user/loggedInUser';
-        this.httpClient.get(loggedInUserURL, {withCredentials: true}).subscribe( (loggedInUser: User) => {
-          this.user = loggedInUser;
-          this.authenticated = true;
-        });
+        this.getLoggedInUser();
       }
     );
   }
@@ -74,7 +72,20 @@ export class UserService {
 
   promoteUserToAdmin(username: string): Observable<any> {
     const URL: string = `${BASE_URL}/user/${username}/makeAdmin`;
-    return this.httpClient.put(URL, null,{responseType: 'text', withCredentials: true});
+    return this.httpClient.put(URL, null, {responseType: 'text', withCredentials: true});
   }
-  
+
+  private getLoggedInUser() {
+    const loggedInUserURL = BASE_URL + '/user/loggedInUser';
+    this.httpClient.get(loggedInUserURL, {withCredentials: true}).subscribe(
+      (loggedInUser: User) => {
+        this.user = loggedInUser;
+        this.authenticated = true;
+      },
+      () => {
+        this.authenticated = false;
+        this.user = null;
+      });
+  }
+
 }
