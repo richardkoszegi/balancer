@@ -11,20 +11,20 @@
       </button>
     </div>
 
-    <ul class='nav navbar-nav navbar-right collapse navbar-collapse'>
-      <li><a [routerLink]="['/home']">Home</a></li>
-      <li><a [routerLink]="['/projects']" *ngIf="isUserLoggedIn()">Projects</a></li>
-      <li><a [routerLink]="['/day-planner']" *ngIf="isUserLoggedIn()">Day Planner</a></li>
-      <li><a [routerLink]="['/login']" *ngIf="!isUserLoggedIn()">Login</a></li>
-      <li><a [routerLink]="['/register']" *ngIf="!isUserLoggedIn()">Register</a></li>
-      <li><a [routerLink]="['/users']" *ngIf="isUserLoggedIn() && isRouteAllowed('users')">Users</a></li>
+    <ul class='nav navbar-nav navbar-right collapse navbar-collapse' [ngClass]="{ 'in': isIn }" (click)="toggleState()">
+      <li><a (click)="toggleState()" [routerLink]="['/home']">Home</a></li>
+      <li><a (click)="toggleState()" [routerLink]="['/projects']" *ngIf="isUserLoggedIn()">Projects</a></li>
+      <li><a (click)="toggleState()" [routerLink]="['/day-planner']" *ngIf="isUserLoggedIn()">Day Planner</a></li>
+      <li><a (click)="toggleState()" [routerLink]="['/login']" *ngIf="!isUserLoggedIn()">Login</a></li>
+      <li><a (click)="toggleState()" [routerLink]="['/register']" *ngIf="!isUserLoggedIn()">Register</a></li>
+      <li><a (click)="toggleState()" [routerLink]="['/users']" *ngIf="isUserLoggedIn() && isRouteAllowed('users')">Users</a></li>
 
       <li class="navbar-text" *ngIf="isUserLoggedIn()">
         <i class="fa fa-user" aria-hidden="true"></i><span> {{getUser().username}} ({{getUserRole()}})</span>
       </li>
 
       <li *ngIf="isUserLoggedIn()">
-        <a (click)="logout()" style="cursor: pointer;">
+        <a (click)="logout(); toggleState()" style="cursor: pointer;">
           <span class="glyphicon glyphicon-log-out"></span><span> Logout</span>
         </a>
       </li>
