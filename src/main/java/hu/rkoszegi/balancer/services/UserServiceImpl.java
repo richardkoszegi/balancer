@@ -5,12 +5,16 @@ import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.model.UserRole;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.repositories.UserRepository;
+import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
-import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,12 +30,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createNewUser(NewUserDTO accountDto) throws UserNameAlreadyExistsException {
+    public Mono<String> createNewUser(NewUserDTO accountDto) {
+        if(!accountDto.getPassword().equals(accountDto.getMatchingPassword())) {
+            throw new BadRequestException("Passwords does not match!");
+        }
+
         if (usernameExists(accountDto.getUsername())) {
-            throw new UserNameAlreadyExistsException("Username already exists");
+            throw new BadRequestException("Username already exists");
         }
         User user = new User(accountDto.getUsername(), passwordEncoder.encode(accountDto.getPassword()), UserRole.ROLE_USER);
-        return userRepository.save(user).block();
+        return userRepository.save(user).map(User::getUsername);
     }
 
     @Override
@@ -52,23 +60,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Iterable<User> getAllUser() {
-        return userRepository.findAll().collectList().block();
+    public Flux<User> getAllUser() {
+        return userRepository.findAll();
     }
 
     @Override
-    public void deleteUser(String userName) {
-        User user = userRepository.findUserByUsername(userName).block();
+    public Mono<Void> deleteUser(String userName) {
+        Optional<User> userOptional = userRepository.findUserByUsername(userName).blockOptional();
+        if(!userOptional.isPresent()) {
+            throw new BadRequestException("User does not exists");
+        }
+
+        User user = userOptional.get();
         Iterable<Project> userProjects = user.getProjects();
         userProjects.forEach(project -> projectRepository.delete(project));
-        userRepository.delete(user).block();
+        return userRepository.delete(user).then();
     }
 
     @Override
-    public void chaneUserRole(String userName, UserRole newUserRole) {
-        User user = userRepository.findUserByUsername(userName).block();
+    public Mono<Void> chaneUserRole(String userName, UserRole newUserRole) {
+        Optional<User> userOptional = userRepository.findUserByUsername(userName).blockOptional();
+        if(!userOptional.isPresent()) {
+            throw new BadRequestException("User does not exists");
+        }
+
+        User user = userOptional.get();
         user.setRole(newUserRole);
-        userRepository.save(user).block();
+        return userRepository.save(user).then();
     }
 
     @Override
