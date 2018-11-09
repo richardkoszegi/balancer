@@ -1,6 +1,7 @@
 package hu.rkoszegi.balancer.services;
 
 import hu.rkoszegi.balancer.model.Project;
+import hu.rkoszegi.balancer.model.Task;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.services.exception.BadRequestException;
@@ -13,6 +14,7 @@ import org.springframework.web.server.MethodNotAllowedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -111,6 +113,13 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new BadRequestException("User '" + username + "' does not exists");
             }
         }
+        List<User> deletedUsers = project.getMembers().stream().filter(user -> !newMemberList.contains(user)).collect(Collectors.toList());
+        List<Task> deletedUserTasks = project.getTasks().stream().filter(task -> deletedUsers.contains(task.getAssignedUser())).collect(Collectors.toList());
+        deletedUserTasks.forEach(task -> {
+            task.setAssignedUser(project.getOwner());
+            taskService.saveTask(task);
+        });
+
         project.setMembers(newMemberList);
         projectRepository.save(project);
     }

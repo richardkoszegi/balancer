@@ -30,21 +30,26 @@ export class ProjectDetailsComponent implements OnInit {
               private userService: UserService,
               private route: ActivatedRoute,
               private router: Router,
-              private location: Location) { }
+              private location: Location) {
+  }
 
   ngOnInit() {
     this.route.params
       .subscribe((params: Params) => {
         let projectId = params['projectId'];
-        this.projectDetailsService.initTasks(projectId).subscribe( project => {
-          this.project = project;
-          this.initForm();
-
-          if(this.isUserOwner()) {
-            this.initSelectableUsers();
-          }
-        });
+        this.initProject(projectId);
       });
+  }
+
+  private initProject(projectId: string) {
+    this.projectDetailsService.initTasks(projectId).subscribe(project => {
+      this.project = project;
+      this.initForm();
+
+      if (this.isUserOwner()) {
+        this.initSelectableUsers();
+      }
+    });
   }
 
   initForm() {
@@ -56,9 +61,9 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   private initSelectableUsers() {
-    this.userService.getAllUserName().subscribe( (userNames: string[]) => {
+    this.userService.getAllUserName().subscribe((userNames: string[]) => {
       this.selectableUsers = userNames;
-      for(const userName of this.project.memberNames) {
+      for (const userName of this.project.memberNames) {
         this.removeUserFromSelectableUsers(userName);
       }
       this.removeUserFromSelectableUsers(this.project.ownerName);
@@ -83,7 +88,7 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   deleteTask(task: Task): void {
-    this.projectDetailsService.deleteTask(task).subscribe( () => {
+    this.projectDetailsService.deleteTask(task).subscribe(() => {
       this.alertService.info("Task deleted!");
     })
   }
@@ -95,7 +100,7 @@ export class ProjectDetailsComponent implements OnInit {
   onTaskCompleted(task: Task) {
     this.projectDetailsService.completeTask(task).subscribe(() => {
       this.alertService.success("Task completed!");
-    } )
+    })
   }
 
   onAddTask() {
@@ -123,7 +128,8 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   onUpdateMembers() {
-    this.projectService.updateProjectMembers(this.project).subscribe( () => {
+    this.projectService.updateProjectMembers(this.project).subscribe(() => {
+      this.initProject(this.project.id);
       this.alertService.success('Members updated!');
     });
   }
