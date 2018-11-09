@@ -1,11 +1,16 @@
 package hu.rkoszegi.balancer.web.dto;
 
-import hu.rkoszegi.balancer.model.Task;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectDTO {
 
     private String id;

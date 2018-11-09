@@ -1,5 +1,7 @@
 package hu.rkoszegi.balancer.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -11,8 +13,10 @@ import java.util.Objects;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
 @Document
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id

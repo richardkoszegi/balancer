@@ -60,32 +60,33 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Mono<Void> updateProject(ProjectDTO dto) {
         log.debug("updateProject called");
-        if (!dto.getOwnerName().equals(userService.getLoggedInUser().getUsername())) {
-            throw new MethodNotAllowedException("update project for this user", null);
-        }
-        Optional<Project> storedProjectOptional = projectRepository.findById(dto.getId()).blockOptional();
-        if (!storedProjectOptional.isPresent()) {
-            throw new BadRequestException("Project not found");
-        }
-        Project storedProject = storedProjectOptional.get();
+        checkIfLoggedInUserCanModifyProject(dto.getOwnerName());
+        Project storedProject = findProjectIfExists(dto.getId());
         storedProject.setName(dto.getName());
         storedProject.setDeadline(dto.getDeadline());
         storedProject.setDescription(dto.getDescription());
         return projectRepository.save(storedProject).then();
     }
 
+    private void checkIfLoggedInUserCanModifyProject(String projectOwnerName) {
+        if (!projectOwnerName.equals(userService.getLoggedInUser().getUsername())) {
+            throw new MethodNotAllowedException("update project members for this user", null);
+        }
+    }
+
+    private Project findProjectIfExists(String projectId) {
+        Optional<Project> storedProjectOptional = projectRepository.findById(projectId).blockOptional();
+        if (!storedProjectOptional.isPresent()) {
+            throw new BadRequestException("Project not found");
+        }
+        return storedProjectOptional.get();
+    }
+
     @Override
     public Mono<Void> deleteProject(String id) {
         log.debug("deleteProject called");
-        Optional<Project> projectOptional = projectRepository.findById(id).blockOptional();
-        if (!projectOptional.isPresent()) {
-            throw new BadRequestException("Project not found");
-        }
-
-        Project project = projectOptional.get();
-        if (!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
-            throw new MethodNotAllowedException("update project members for this user", null);
-        }
+        Project project = findProjectIfExists(id);
+        checkIfLoggedInUserCanModifyProject(project.getOwner().getUsername());
         project.getTasks().forEach(task -> taskService.deleteTask(task.getId()));
         return projectRepository.deleteById(id).then();
     }
@@ -93,15 +94,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Mono<Void> updateProjectMembers(String id, Iterable<String> memberNames) {
         log.debug("updateProjectMembers called");
-        Optional<Project> projectOptional = projectRepository.findById(id).blockOptional();
-        if (!projectOptional.isPresent()) {
-            throw new BadRequestException("Project not found");
-        }
-
-        Project project = projectOptional.get();
-        if (!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
-            throw new MethodNotAllowedException("update project members for this user", null);
-        }
+        Project project = findProjectIfExists(id);
+        checkIfLoggedInUserCanModifyProject(project.getOwner().getUsername());
         List<User> newMemberList = new ArrayList<>();
         for (String username : memberNames) {
             User user = userService.getUserByUsername(username);
