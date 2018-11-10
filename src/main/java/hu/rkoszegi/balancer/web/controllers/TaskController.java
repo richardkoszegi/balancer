@@ -48,7 +48,7 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/project/{projectId}/tasks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public TaskDTO addTaskToProject(@PathVariable String projectId, @RequestBody Task task){
+    public TaskDTO addTaskToProject(@PathVariable String projectId, @RequestBody TaskDTO task){
         log.debug("addTaskToProject called");
         return taskService.createTask(projectId, task);
     }

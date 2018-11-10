@@ -10,4 +10,7 @@ public interface TaskMapper {
 
     @Mapping(target = "assignedUser", source = "assignedUser.username")
     TaskDTO toDto(Task task);
+
+    @Mapping(target = "assignedUser", ignore = true)
+    Task toEntity(TaskDTO dto);
 }

@@ -125,13 +125,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDTO createTask(String projectId, Task task) {
+    public TaskDTO createTask(String projectId, TaskDTO taskDTO) {
         log.debug("createTask called");
         Optional<Project> projectOptional = projectRepository.findById(projectId);
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             User loggedInUser = userService.getLoggedInUser();
             if (userCanCreateTask(loggedInUser, project)) {
+                Task task = taskMapper.toEntity(taskDTO);
                 task.setAssignedUser(loggedInUser);
                 task.setProject(project);
                 taskRepository.save(task);

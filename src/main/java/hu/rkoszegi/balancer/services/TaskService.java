@@ -22,7 +22,7 @@ public interface TaskService {
 
     void updateTask(TaskDTO taskDTO);
 
-    TaskDTO createTask(String projectId, Task task);
+    TaskDTO createTask(String projectId, TaskDTO task);
 
     Date completeTask(String taskId);
 }
