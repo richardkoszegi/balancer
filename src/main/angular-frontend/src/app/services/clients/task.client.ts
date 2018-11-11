@@ -1,11 +1,11 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {Task} from "../model/Task";
+import {Task} from "../../model/Task";
 import {Observable} from "rxjs/Observable";
-import {BASE_URL} from "../Constants";
+import {BASE_URL} from "../../Constants";
 
 @Injectable()
-export class TaskService {
+export class TaskClient {
 
   constructor(private httpClient: HttpClient) {}
 

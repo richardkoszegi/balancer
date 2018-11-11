@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from "@angular/router";
-import {ProjectDetailsService} from "../../services/ProjectDetailsService";
+import {ProjectService} from "../../services/project.service";
 import {Project} from "../../model/Project";
 
 @Component({
@@ -16,7 +16,7 @@ export class ProjectEditComponent implements OnInit {
   project: Project;
 
   constructor(private route: ActivatedRoute,
-              private projectDetailsService: ProjectDetailsService,
+              private projectService: ProjectService,
               private router: Router) { }
 
   ngOnInit() {
@@ -29,7 +29,7 @@ export class ProjectEditComponent implements OnInit {
   }
 
   private initProject(projectId: string) {
-    this.projectDetailsService.initTasks(projectId).subscribe(project => {
+    this.projectService.initTasks(projectId).subscribe(project => {
       this.project = project;
     });
   }

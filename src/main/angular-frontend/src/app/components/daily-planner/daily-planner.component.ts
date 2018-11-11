@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CalendarEventTimesChangedEvent, DAYS_OF_WEEK} from "angular-calendar";
 import {Subject} from "rxjs/Subject";
-import {TaskService} from "../../services/TaskService";
-import {AlertService} from "../../services/AlertService";
+import {TaskClient} from "../../services/clients/task.client";
+import {AlertService} from "../../services/alert.service";
 import {Task} from '../../model/Task';
 import {Priority} from "../../model/Priority";
 import {PlannedTask} from "../../model/PlannedTask";
@@ -39,7 +39,7 @@ export class DailyPlannerComponent implements OnInit {
 
   dataChanged = false;
 
-  constructor(private taskService: TaskService,
+  constructor(private taskClient: TaskClient,
               private alertService: AlertService,
               private router: Router,
               private datePipe: DatePipe) {
@@ -53,7 +53,7 @@ export class DailyPlannerComponent implements OnInit {
   initEvents() {
     this.events = [];
     this.externalEvents = [];
-    this.taskService.getTasksForDate(this.viewDate).subscribe(tasks => {
+    this.taskClient.getTasksForDate(this.viewDate).subscribe(tasks => {
       this.tasks = tasks;
       for (let task of tasks) {
         let event = new PlannedTask(task);
@@ -100,7 +100,7 @@ export class DailyPlannerComponent implements OnInit {
 
   onSaveChanges() {
     let modifiedTasks = this.getModifiedTasks();
-    this.taskService.updateTasks(modifiedTasks).subscribe(() => {
+    this.taskClient.updateTasks(modifiedTasks).subscribe(() => {
       this.dataChanged = false;
       this.alertService.success("Tasks updated!");
     })
@@ -135,7 +135,7 @@ export class DailyPlannerComponent implements OnInit {
   }
 
   deleteEvent(plannedTask: PlannedTask) {
-    this.taskService.deleteTask(plannedTask.getTask().id).subscribe(() => {
+    this.taskClient.deleteTask(plannedTask.getTask().id).subscribe(() => {
       this.events.splice(this.events.indexOf(plannedTask), 1);
       this.alertService.info("Task deleted!");
       this.refresh.next();

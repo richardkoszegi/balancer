@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {UserService} from "../../services/UserService";
-import {AlertService} from "../../services/AlertService";
+import {UserService} from "../../services/user.service";
+import {AlertService} from "../../services/alert.service";
 import {Router} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {Observable} from "rxjs";

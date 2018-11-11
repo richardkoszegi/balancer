@@ -1,12 +1,12 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs/Observable";
-import {Project} from "../model/Project";
-import {BASE_URL} from "../Constants";
+import {Project} from "../../model/Project";
+import {BASE_URL} from "../../Constants";
 
 //source: http://brianflove.com/2017/07/21/migrating-to-http-client/
 @Injectable()
-export class ProjectService{
+export class ProjectClient{
 
   private readonly URL = BASE_URL + "/project";
 

@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Project} from "../../model/Project";
-import {ProjectService} from "../../services/ProjectService";
+import {ProjectClient} from "../../services/clients/project.client";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {UserService} from "../../services/UserService";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-projects',
@@ -14,7 +14,7 @@ export class ProjectsComponent implements OnInit {
   projects: Project[] = [];
   newProjectForm: FormGroup;
 
-  constructor(private projectService: ProjectService, private userService: UserService) {
+  constructor(private projectClient: ProjectClient, private userService: UserService) {
   }
 
   initForm(): void {
@@ -27,7 +27,7 @@ export class ProjectsComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.projectService.list().subscribe(
+    this.projectClient.list().subscribe(
       data => {
         this.projects = data;
       },
@@ -36,7 +36,7 @@ export class ProjectsComponent implements OnInit {
   }
 
   onCreateProject(): void {
-    this.projectService.create(this.newProjectForm.value).subscribe(
+    this.projectClient.create(this.newProjectForm.value).subscribe(
       (project: Project) => {
         this.projects.push(project);
       },
@@ -53,7 +53,7 @@ export class ProjectsComponent implements OnInit {
   }
 
   onDeleteProject(project: Project): void {
-    this.projectService.delete(project).subscribe(
+    this.projectClient.delete(project).subscribe(
       () => {
         //source: https://stackoverflow.com/a/15295806
         let index = this.projects.indexOf(project, 0);

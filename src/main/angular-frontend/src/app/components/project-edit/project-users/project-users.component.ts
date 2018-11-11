@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {Project} from "../../../model/Project";
-import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
-import {UserService} from "../../../services/UserService";
-import {ProjectService} from "../../../services/ProjectService";
-import {AlertService} from "../../../services/AlertService";
+import {ProjectService} from "../../../services/project.service";
+import {UserService} from "../../../services/user.service";
+import {ProjectClient} from "../../../services/clients/project.client";
+import {AlertService} from "../../../services/alert.service";
 
 @Component({
   selector: 'app-project-users',
@@ -18,20 +18,20 @@ export class ProjectUsersComponent implements OnInit {
   membersChanged = false;
 
   constructor(private alertService: AlertService,
-              private projectDetailsService: ProjectDetailsService,
               private projectService: ProjectService,
+              private projectClient: ProjectClient,
               private userService: UserService) {
   }
 
   ngOnInit() {
-    this.project = this.projectDetailsService.project;
+    this.project = this.projectService.project;
     if(this.project) {
       if (this.isUserOwner()) {
         this.initSelectableUsers();
       }
     }
-    this.projectDetailsService.projectChanged.subscribe(() => {
-      this.project = this.projectDetailsService.project;
+    this.projectService.projectChanged.subscribe(() => {
+      this.project = this.projectService.project;
       if (this.isUserOwner()) {
         this.initSelectableUsers();
       }
@@ -39,7 +39,7 @@ export class ProjectUsersComponent implements OnInit {
   }
 
   private initProject(projectId: string) {
-    this.projectDetailsService.initTasks(projectId).subscribe(project => {
+    this.projectService.initTasks(projectId).subscribe(project => {
       this.project = project;
 
       if (this.isUserOwner()) {
@@ -73,7 +73,7 @@ export class ProjectUsersComponent implements OnInit {
   }
 
   onUpdateMembers() {
-    this.projectService.updateProjectMembers(this.project).subscribe(() => {
+    this.projectClient.updateProjectMembers(this.project).subscribe(() => {
       this.initProject(this.project.id);
       this.alertService.success('Members updated!');
     });

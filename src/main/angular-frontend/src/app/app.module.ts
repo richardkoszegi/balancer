@@ -8,20 +8,20 @@ import {RouterModule, Routes} from "@angular/router";
 import {HomeComponent} from './components/home/home.component';
 import {ProjectsComponent} from './components/projects/projects.component';
 import {HttpClientModule} from "@angular/common/http";
-import {ProjectService} from "./services/ProjectService";
+import {ProjectClient} from "./services/clients/project.client";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ProjectDetailsComponent} from './components/project-edit/project-details/project-details.component';
 import {AlertComponent} from "./components/alert/alert.component";
-import {AlertService} from "./services/AlertService";
-import {TaskService} from "./services/TaskService";
+import {AlertService} from "./services/alert.service";
+import {TaskClient} from "./services/clients/task.client";
 import {ProjectPlannerComponent} from './components/project-edit/project-planner/project-planner.component';
 import {DailyPlannerComponent} from './components/daily-planner/daily-planner.component';
 import {ModalComponent} from "./components/modal/modal.component";
-import {ProjectDetailsService} from "./services/ProjectDetailsService";
+import {ProjectService} from "./services/project.service";
 import {ContextMenuModule} from 'ngx-contextmenu';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
-import {UserService} from "./services/UserService";
+import {UserService} from "./services/user.service";
 import {AuthGuard} from "./services/auth-guard.service";
 import {PathAllowerService} from "./services/path-allower.service";
 import { UsersComponent } from './components/users/users.component';
@@ -85,9 +85,9 @@ const routes: Routes = [
     AuthGuard,
     DatePipe,
     PathAllowerService,
-    ProjectDetailsService,
     ProjectService,
-    TaskService,
+    ProjectClient,
+    TaskClient,
     UserService
   ],
   bootstrap: [AppComponent]

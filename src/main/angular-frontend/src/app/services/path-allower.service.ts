@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {UserService} from "./UserService";
+import {UserService} from "./user.service";
 
 class Restriction {
   path: string;

@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {Task} from "../../../model/Task";
-import {UserService} from "../../../services/UserService";
+import {UserService} from "../../../services/user.service";
 import {Project} from "../../../model/Project";
 import {Router} from "@angular/router";
-import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
-import {AlertService} from "../../../services/AlertService";
+import {ProjectService} from "../../../services/project.service";
+import {AlertService} from "../../../services/alert.service";
 
 @Component({
   selector: 'app-project-tasks',
@@ -17,13 +17,13 @@ export class ProjectTasksComponent implements OnInit {
 
   constructor(private alertService: AlertService,
               private userService: UserService,
-              private projectDetailsService: ProjectDetailsService,
+              private projectService: ProjectService,
               private router: Router) { }
 
   ngOnInit() {
-    this.project = this.projectDetailsService.project;
-    this.projectDetailsService.projectChanged.subscribe(() => {
-      this.project = this.projectDetailsService.project;
+    this.project = this.projectService.project;
+    this.projectService.projectChanged.subscribe(() => {
+      this.project = this.projectService.project;
     });
   }
 
@@ -40,7 +40,7 @@ export class ProjectTasksComponent implements OnInit {
   }
 
   onTaskCompleted(task: Task) {
-    this.projectDetailsService.completeTask(task).subscribe(() => {
+    this.projectService.completeTask(task).subscribe(() => {
       this.alertService.success("Task completed!");
     })
   }
@@ -50,7 +50,7 @@ export class ProjectTasksComponent implements OnInit {
   }
 
   onDeleteTask(task: Task): void {
-    this.projectDetailsService.deleteTask(task).subscribe(() => {
+    this.projectService.deleteTask(task).subscribe(() => {
       this.alertService.info("Task deleted!");
     })
   }

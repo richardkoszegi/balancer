@@ -1,10 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {Project} from "../../../model/Project";
-import {AlertService} from "../../../services/AlertService";
+import {AlertService} from "../../../services/alert.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
-import {UserService} from "../../../services/UserService";
-import {ProjectService} from "../../../services/ProjectService";
+import {ProjectService} from "../../../services/project.service";
+import {UserService} from "../../../services/user.service";
 
 @Component({
   selector: 'app-project-details',
@@ -18,18 +17,17 @@ export class ProjectDetailsComponent implements OnInit {
   projectForm: FormGroup;
 
   constructor(private alertService: AlertService,
-              private projectDetailsService: ProjectDetailsService,
               private projectService: ProjectService,
               private userService: UserService) {
   }
 
   ngOnInit() {
-    this.project = this.projectDetailsService.project;
+    this.project = this.projectService.project;
     if(this.project) {
       this.initForm();
     }
-    this.projectDetailsService.projectChanged.subscribe(() => {
-      this.project = this.projectDetailsService.project;
+    this.projectService.projectChanged.subscribe(() => {
+      this.project = this.projectService.project;
       this.initForm();
     });
   }
@@ -44,7 +42,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   modifyProject() {
     this.setProjectValuesFromForm();
-    this.projectDetailsService.modifyProject().subscribe(() => {
+    this.projectService.modifyProject().subscribe(() => {
       this.alertService.success("Project's data modified successfully!");
     });
   }

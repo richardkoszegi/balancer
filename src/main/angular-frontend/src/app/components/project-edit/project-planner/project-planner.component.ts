@@ -3,10 +3,10 @@ import {CalendarEvent, CalendarEventTimesChangedEvent, DAYS_OF_WEEK} from 'angul
 import {Subject} from 'rxjs/Subject';
 import {colors} from "../../../Constants";
 import {Task} from "../../../model/Task";
-import {AlertService} from "../../../services/AlertService";
-import {ProjectDetailsService} from "../../../services/ProjectDetailsService";
+import {AlertService} from "../../../services/alert.service";
+import {ProjectService} from "../../../services/project.service";
 import {Subscription} from "rxjs";
-import {UserService} from "../../../services/UserService";
+import {UserService} from "../../../services/user.service";
 
 @Component({
   selector: 'app-project-planner',
@@ -39,7 +39,7 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
   taskSubscription: Subscription;
 
   constructor(private alertService: AlertService,
-              private projectDetailsService: ProjectDetailsService,
+              private projectService: ProjectService,
               private userService: UserService) {}
 
   eventDropped({
@@ -57,7 +57,7 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
       event.start = newStart;
 
       updatedTask.plannedDate = newStart;
-      this.projectDetailsService.updateTask(updatedTask).subscribe(() => this.alertService.success("Task date modified!"));
+      this.projectService.updateTask(updatedTask).subscribe(() => this.alertService.success("Task date modified!"));
       if (newEnd) {
         event.end = newEnd;
       }
@@ -66,9 +66,9 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.tasks = this.projectDetailsService.project.tasks;
+    this.tasks = this.projectService.project.tasks;
     this.refreshEvents();
-    this.taskSubscription = this.projectDetailsService.tasksChanged.subscribe((tasks: Task[]) => {
+    this.taskSubscription = this.projectService.tasksChanged.subscribe((tasks: Task[]) => {
       this.tasks = tasks;
       this.refreshEvents();
     })
@@ -107,7 +107,7 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
   }
 
   isUserOwner(): boolean {
-    return this.userService.isUserLoggedIn() && this.projectDetailsService.project.ownerName === this.userService.user.username;
+    return this.userService.isUserLoggedIn() && this.projectService.project.ownerName === this.userService.user.username;
   }
 
 }

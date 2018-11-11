@@ -5,11 +5,11 @@ import {Project} from "../../model/Project";
 import {Task} from "../../model/Task";
 import {Priority} from "../../model/Priority";
 import {DatePipe, Location} from "@angular/common";
-import {ProjectService} from "../../services/ProjectService";
-import {ProjectDetailsService} from "../../services/ProjectDetailsService";
-import {AlertService} from "../../services/AlertService";
-import {TaskService} from "../../services/TaskService";
-import {UserService} from "../../services/UserService";
+import {ProjectClient} from "../../services/clients/project.client";
+import {ProjectService} from "../../services/project.service";
+import {AlertService} from "../../services/alert.service";
+import {TaskClient} from "../../services/clients/task.client";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-task-edit',
@@ -37,12 +37,12 @@ export class TaskEditComponent implements OnInit {
   constructor(
     private alertService: AlertService,
     private datePipe: DatePipe,
+    private projectClient: ProjectClient,
     private projectService: ProjectService,
-    private projectDetailsService: ProjectDetailsService,
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
-    private taskService: TaskService,
+    private taskClient: TaskClient,
     private location: Location) {
   }
 
@@ -60,7 +60,7 @@ export class TaskEditComponent implements OnInit {
           this.editMode = params['taskId'] != null;
           this.plannedDate = params['dateParam'];
           this.calledFromDayPlanner = params['dateParam'] != null;
-          this.projectService.list().subscribe((projects: Project[]) => {
+          this.projectClient.list().subscribe((projects: Project[]) => {
             this.projects = projects;
             if (!this.projectCanBeChanged) {
               this.project = this.projects.find(project => project.id === this.projectId);
@@ -72,7 +72,7 @@ export class TaskEditComponent implements OnInit {
             this.initForm();
           });
           if (this.editMode) {
-            this.editedTask = this.projectDetailsService.getTaskById(this.taskId);
+            this.editedTask = this.projectService.getTaskById(this.taskId);
           }
         });
   }
@@ -122,19 +122,19 @@ export class TaskEditComponent implements OnInit {
   onSubmit() {
     if (this.editMode) {
       this.updateEditedTaskFieldsFromForm();
-      this.projectDetailsService.updateTask(this.editedTask).subscribe(() => {
+      this.projectService.updateTask(this.editedTask).subscribe(() => {
         this.alertService.success('Task updated!');
         this.location.back();
       });
     } else if (this.calledFromDayPlanner) {
       let submittedTask: Task = this.taskForm.value;
       submittedTask.plannedDate = new Date(this.taskForm.get('plannedDate').value);
-      this.taskService.createForProject(this.taskForm.get('projectId').value, this.taskForm.value).subscribe(() => {
+      this.taskClient.createForProject(this.taskForm.get('projectId').value, this.taskForm.value).subscribe(() => {
         this.alertService.success('Task Created');
         this.location.back();
       });
     } else {
-      this.projectDetailsService.createTaskForProject(this.taskForm.value);
+      this.projectService.createTaskForProject(this.taskForm.value);
       this.taskForm.reset();
       this.location.back();
     }
