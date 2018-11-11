@@ -1,8 +1,3 @@
 input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched {
   border: 1px solid red;
 }
-
-.completedTaskRow {
-  background: rgba(145, 255, 53, 0.25);
-  color: green;
-}

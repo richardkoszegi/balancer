@@ -1,0 +1,50 @@
+<div class="row" *ngIf="project">
+  <div class="col-xs-12 col-md-10 col-md-offset-1">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3>{{project?.name}} Details</h3>
+      </div>
+      <div *ngIf="project" class="panel-body">
+        <div class="row" style="margin: 20px 0"></div>
+        <div class="col-md-6">
+          <div class="btn-group">
+            <button
+              class="btn btn-primary"
+              (click)="navigateToPage('details')"
+              [class.active]="view === 'details'">
+              Details
+            </button>
+            <button
+              class="btn btn-primary"
+              (click)="navigateToPage('tasks')"
+              [class.active]="view === 'tasks'">
+              Tasks
+            </button>
+            <button
+              class="btn btn-primary"
+              (click)="navigateToPage('members')"
+              [class.active]="view === 'members'">
+              Members
+            </button>
+            <button
+              class="btn btn-primary"
+              (click)="navigateToPage('planner')"
+              [class.active]="view === 'planner'">
+              Planner
+            </button>
+          </div>
+        </div>
+
+        <div class="col-md-2 col-md-offset-2">
+          <button type="button" (click)="goBackToProjects()" class="btn btn-primary">Back to Projects</button>
+        </div>
+      </div>
+
+    <div class="row" style="overflow: auto">
+      <div class="col-xs-12" >
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

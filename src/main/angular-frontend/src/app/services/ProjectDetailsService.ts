@@ -11,6 +11,8 @@ export class ProjectDetailsService {
 
   project: Project;
 
+  projectChanged = new Subject<any>();
+
   tasksChanged = new Subject<any>();
 
   constructor(private projectService: ProjectService,
@@ -20,6 +22,7 @@ export class ProjectDetailsService {
   initTasks(projectId): Observable<Project> {
     return this.projectService.getProject(projectId).map(project => {
       this.project = project;
+      this.projectChanged.next();
       return project;
     });
   }

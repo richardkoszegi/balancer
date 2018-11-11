@@ -10,11 +10,11 @@ import {ProjectsComponent} from './components/projects/projects.component';
 import {HttpClientModule} from "@angular/common/http";
 import {ProjectService} from "./services/ProjectService";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {ProjectDetailsComponent} from './components/project-details/project-details.component';
+import {ProjectDetailsComponent} from './components/project-edit/project-details/project-details.component';
 import {AlertComponent} from "./components/alert/alert.component";
 import {AlertService} from "./services/AlertService";
 import {TaskService} from "./services/TaskService";
-import {ProjectPlannerComponent} from './components/project-details/project-planner/project-planner.component';
+import {ProjectPlannerComponent} from './components/project-edit/project-planner/project-planner.component';
 import {DailyPlannerComponent} from './components/daily-planner/daily-planner.component';
 import {ModalComponent} from "./components/modal/modal.component";
 import {ProjectDetailsService} from "./services/ProjectDetailsService";
@@ -27,18 +27,26 @@ import {PathAllowerService} from "./services/path-allower.service";
 import { UsersComponent } from './components/users/users.component';
 import { TaskEditComponent } from './components/task-edit/task-edit.component';
 import {DatePipe} from "@angular/common";
+import { ProjectEditComponent } from './components/project-edit/project-edit.component';
+import { ProjectUsersComponent } from './components/project-edit/project-users/project-users.component';
+import { ProjectTasksComponent } from './components/project-edit/project-tasks/project-tasks.component';
 
 
 const routes: Routes = [
   {path: '', redirectTo: 'home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
   {path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard]},
-  {path: 'projects/:projectId', component: ProjectDetailsComponent, canActivate: [AuthGuard]},
+  {path: 'projects/:projectId', component: ProjectEditComponent, canActivate: [AuthGuard], children: [
+      {path: '', redirectTo: 'details', pathMatch: 'prefix', canActivate: [AuthGuard]},
+      {path: 'details', component: ProjectDetailsComponent, canActivate: [AuthGuard]},
+      {path: 'tasks', component: ProjectTasksComponent, canActivate: [AuthGuard]},
+      {path: 'members', component: ProjectUsersComponent, canActivate: [AuthGuard]},
+      {path: 'planner', component: ProjectPlannerComponent, canActivate: [AuthGuard]},
+    ]},
   {path: 'day-planner', component: DailyPlannerComponent, canActivate: [AuthGuard]},
   {path: 'day-planner/:dateParam/new', component: TaskEditComponent, canActivate: [AuthGuard]},
   {path: 'register', component: RegisterComponent},
   {path: 'login', component: LoginComponent},
-  {path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
   {path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
   {path: 'projects/:projectId/task/new', component: TaskEditComponent, canActivate: [AuthGuard]},
   {path: 'tasks/new', component: TaskEditComponent, canActivate: [AuthGuard]},
@@ -58,7 +66,10 @@ const routes: Routes = [
     RegisterComponent,
     LoginComponent,
     UsersComponent,
-    TaskEditComponent
+    TaskEditComponent,
+    ProjectEditComponent,
+    ProjectUsersComponent,
+    ProjectTasksComponent
   ],
   imports: [
     BrowserModule,

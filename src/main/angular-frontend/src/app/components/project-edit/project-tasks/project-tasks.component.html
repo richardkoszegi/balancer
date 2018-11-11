@@ -1,0 +1,41 @@
+<div class="row">
+  <div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <table class="table">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Priority</th>
+        <th>Assignee</th>
+        <th>Planned date</th>
+        <th>Description</th>
+        <th>Completion date</th>
+      </tr>
+      </thead>
+      <tr *ngFor="let task of project.tasks" [ngClass]="{completedTaskRow: task.completed === true}">
+        <td>
+          <button *ngIf="canUserEditTask(task) && !task.completed" class="btn btn-success"
+                  (click)="onTaskCompleted(task)"><span
+            class="glyphicon glyphicon-ok-sign"></span></button>
+
+          <span *ngIf="task.completed" class="glyphicon glyphicon-ok"></span>
+        </td>
+        <td>{{task.name}}</td>
+        <td>{{task.priority}}</td>
+        <td>{{task.assignedUser}}</td>
+        <td>{{task.plannedDate | date:'yyyy. MM. dd.'}}</td>
+        <td>{{task.description}}</td>
+        <td>{{task.completionDate | date:'yyyy. MM. dd.'}}</td>
+        <td>
+          <button *ngIf="canUserEditTask(task)" class="btn btn-primary" (click)="onEditTask(task.id)">Edit</button>
+        </td>
+        <td>
+          <button *ngIf="canUserEditTask(task)" (click)="onDeleteTask(task)" class="btn btn-danger">Delete</button>
+        </td>
+      </tr>
+    </table>
+
+    <button class="btn btn-success" (click)="onAddTask()">Add Task</button>
+
+  </div>
+</div>
