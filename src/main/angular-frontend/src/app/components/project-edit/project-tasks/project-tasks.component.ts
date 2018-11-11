@@ -1,19 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Task} from "../../../model/Task";
 import {UserService} from "../../../services/user.service";
 import {Project} from "../../../model/Project";
 import {Router} from "@angular/router";
 import {ProjectService} from "../../../services/project.service";
 import {AlertService} from "../../../services/alert.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-project-tasks',
   templateUrl: './project-tasks.component.html',
   styleUrls: ['./project-tasks.component.css']
 })
-export class ProjectTasksComponent implements OnInit {
+export class ProjectTasksComponent implements OnInit, OnDestroy {
 
   project: Project;
+  projectSubscription: Subscription;
 
   constructor(private alertService: AlertService,
               private userService: UserService,
@@ -22,17 +24,17 @@ export class ProjectTasksComponent implements OnInit {
 
   ngOnInit() {
     this.project = this.projectService.project;
-    this.projectService.projectChanged.subscribe(() => {
+    this.projectSubscription = this.projectService.projectChanged.subscribe(() => {
       this.project = this.projectService.project;
     });
   }
 
-  canUserEditTask(task: Task): boolean {
-    return (this.userService.isUserLoggedIn() && this.userService.user.username === task.assignedUser) || this.isUserOwner();
+  ngOnDestroy() {
+    this.projectSubscription.unsubscribe();
   }
 
-  isUserOwner(): boolean {
-    return this.userService.isUserLoggedIn() && this.project.ownerName === this.userService.user.username;
+  canUserEditTask(task: Task): boolean {
+    return this.projectService.canUserEditTask(task);
   }
 
   onAddTask() {

@@ -5,6 +5,7 @@ import {Task} from "../model/Task";
 import {ProjectClient} from "./clients/project.client";
 import {Observable, Subject} from "rxjs";
 import "rxjs/Rx";
+import {UserService} from "./user.service";
 
 @Injectable()
 export class ProjectService {
@@ -12,14 +13,14 @@ export class ProjectService {
   project: Project;
 
   projectChanged = new Subject<any>();
-
   tasksChanged = new Subject<any>();
 
   constructor(private projectClient: ProjectClient,
-              private taskClient: TaskClient) {
+              private taskClient: TaskClient,
+              private userService: UserService) {
   }
 
-  initTasks(projectId): Observable<Project> {
+  initProject(projectId): Observable<Project> {
     return this.projectClient.getProject(projectId).map(project => {
       this.project = project;
       this.projectChanged.next();
@@ -62,6 +63,20 @@ export class ProjectService {
   getTaskById(taskId: string): Task {
     return this.project.tasks[this.project.tasks.findIndex(task => task.id === taskId)];
     // return this.project.tasks.find(task => task.id === taskId);
+  }
+
+  isUserOwner(): boolean {
+    return this.userService.isUserLoggedIn() && this.project.ownerName === this.userService.user.username;
+  }
+
+  canUserEditTask(task: Task): boolean {
+    return (this.userService.isUserLoggedIn() && this.userService.user.username === task.assignedUser) || this.isUserOwner();
+  }
+
+  updateMembers(): Observable<any> {
+    return this.projectClient.updateProjectMembers(this.project).map(() => {
+      this.initProject(this.project.id).subscribe();
+    });
   }
 
 }

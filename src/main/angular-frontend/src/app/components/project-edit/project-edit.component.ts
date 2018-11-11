@@ -29,7 +29,7 @@ export class ProjectEditComponent implements OnInit {
   }
 
   private initProject(projectId: string) {
-    this.projectService.initTasks(projectId).subscribe(project => {
+    this.projectService.initProject(projectId).subscribe(project => {
       this.project = project;
     });
   }

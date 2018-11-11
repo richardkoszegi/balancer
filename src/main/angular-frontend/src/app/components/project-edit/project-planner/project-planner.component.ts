@@ -6,7 +6,6 @@ import {Task} from "../../../model/Task";
 import {AlertService} from "../../../services/alert.service";
 import {ProjectService} from "../../../services/project.service";
 import {Subscription} from "rxjs";
-import {UserService} from "../../../services/user.service";
 
 @Component({
   selector: 'app-project-planner',
@@ -39,8 +38,7 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
   taskSubscription: Subscription;
 
   constructor(private alertService: AlertService,
-              private projectService: ProjectService,
-              private userService: UserService) {}
+              private projectService: ProjectService) {}
 
   eventDropped({
                  event,
@@ -103,11 +101,6 @@ export class ProjectPlannerComponent implements OnInit, OnDestroy {
   }
 
   private canUserEditTask(task: Task): boolean {
-    return (this.userService.isUserLoggedIn() && this.userService.user.username === task.assignedUser) || this.isUserOwner();
+    return this.projectService.canUserEditTask(task);
   }
-
-  isUserOwner(): boolean {
-    return this.userService.isUserLoggedIn() && this.projectService.project.ownerName === this.userService.user.username;
-  }
-
 }
