@@ -1,63 +1,67 @@
-<h2>Register new user</h2>
-<form [formGroup]="newUserForm" (ngSubmit)="onCreateUser()" class="form-horizontal">
+<div class="row">
+  <div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h2>Register new user</h2>
+    <form [formGroup]="newUserForm" (ngSubmit)="onCreateUser()" class="form-horizontal">
 
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="userNameInput">User Name:</label>
-    <div class="col-sm-10">
-      <input id="userNameInput"
-             type="text"
-             placeholder="User Name"
-             formControlName="username"
-             class="form-control">
-      <span
-        *ngIf="!newUserForm.get('username').valid && newUserForm.get('username').touched && !newUserForm.get('username').hasError('usernameIsTaken')"
-        class="help-block" style="color: red">Please enter a username!</span>
-      <span
-        *ngIf="newUserForm.get('username').hasError('usernameIsTaken')"
-        class="help-block" style="color: red"><span class="glyphicon glyphicon-remove-sign"></span> Username is already taken!</span>
-      <span
-        *ngIf="newUserForm.get('username').valid && newUserForm.get('username').touched && !newUserForm.get('username').hasError('usernameIsTaken')"
-        class="help-block" style="color: green"><span class="glyphicon glyphicon-ok-sign"></span> Username is free!</span>
-    </div>
-  </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="userNameInput">User Name:</label>
+        <div class="col-sm-10">
+          <input id="userNameInput"
+                 type="text"
+                 placeholder="User Name"
+                 formControlName="username"
+                 class="form-control">
+          <span
+            *ngIf="!newUserForm.get('username').valid && newUserForm.get('username').touched && !newUserForm.get('username').hasError('usernameIsTaken')"
+            class="help-block" style="color: red">Please enter a username!</span>
+          <span
+            *ngIf="newUserForm.get('username').hasError('usernameIsTaken')"
+            class="help-block" style="color: red"><span class="glyphicon glyphicon-remove-sign"></span> Username is already taken!</span>
+          <span
+            *ngIf="newUserForm.get('username').valid && newUserForm.get('username').touched && !newUserForm.get('username').hasError('usernameIsTaken')"
+            class="help-block" style="color: green"><span class="glyphicon glyphicon-ok-sign"></span> Username is free!</span>
+        </div>
+      </div>
 
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="passwordInput">Password:</label>
-    <div class="col-sm-10">
-      <input id="passwordInput"
-             type="password"
-             formControlName="password"
-             class="form-control"
-             placeholder="Enter password">
-      <span
-        *ngIf="!newUserForm.get('password').valid && newUserForm.get('password').touched"
-        class="help-block" style="color: red">Please enter a password!</span>
-    </div>
-  </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="passwordInput">Password:</label>
+        <div class="col-sm-10">
+          <input id="passwordInput"
+                 type="password"
+                 formControlName="password"
+                 class="form-control"
+                 placeholder="Enter password">
+          <span
+            *ngIf="!newUserForm.get('password').valid && newUserForm.get('password').touched"
+            class="help-block" style="color: red">Please enter a password!</span>
+        </div>
+      </div>
 
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="matchingPasswordInput">Password again:</label>
-    <div class="col-sm-10">
-      <input id="matchingPasswordInput"
-             type="password"
-             formControlName="matchingPassword"
-             class="form-control" placeholder="Enter password again">
-      <span
-        *ngIf="!newUserForm.get('matchingPassword').valid && newUserForm.get('matchingPassword').touched"
-        class="help-block" style="color: red">Please enter the password again!</span>
-      <span
-        *ngIf="newUserForm.get('password').touched && newUserForm.get('matchingPassword').touched && newUserForm.hasError('notMatchingPassword')"
-        class="help-block" style="color: red">The entered passwords does not match!</span>
-    </div>
-  </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="matchingPasswordInput">Password again:</label>
+        <div class="col-sm-10">
+          <input id="matchingPasswordInput"
+                 type="password"
+                 formControlName="matchingPassword"
+                 class="form-control" placeholder="Enter password again">
+          <span
+            *ngIf="!newUserForm.get('matchingPassword').valid && newUserForm.get('matchingPassword').touched"
+            class="help-block" style="color: red">Please enter the password again!</span>
+          <span
+            *ngIf="newUserForm.get('password').touched && newUserForm.get('matchingPassword').touched && newUserForm.hasError('notMatchingPassword')"
+            class="help-block" style="color: red">The entered passwords does not match!</span>
+        </div>
+      </div>
 
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit"
-              class="btn btn-success"
-              [disabled]="!newUserForm.valid">
-        Register
-      </button>
-    </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit"
+                  class="btn btn-success"
+                  [disabled]="!newUserForm.valid">
+            Register
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
-</form>
+</div>
