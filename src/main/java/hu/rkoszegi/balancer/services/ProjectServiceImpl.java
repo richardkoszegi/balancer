@@ -111,7 +111,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<Task> deletedUserTasks = project.getTasks().stream().filter(task -> deletedUsers.contains(task.getAssignedUser())).collect(Collectors.toList());
         deletedUserTasks.forEach(task -> {
             task.setAssignedUser(project.getOwner());
-            taskService.saveTask(task);
+            taskService.saveTask(task).block();
         });
 
         project.setMembers(newMemberList);

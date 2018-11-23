@@ -16,6 +16,8 @@ public interface TaskService {
 
     Flux<Task> findAllTask();
 
+    Mono<Void> saveTask(Task task);
+
     Mono<Void> deleteTask(String id);
 
     Flux<TaskDTO> findTasksForDate(LocalDate date);

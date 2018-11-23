@@ -57,6 +57,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Mono<Void> saveTask(Task task) {
+        log.debug("saveTask called");
+        return taskRepository.save(task).then();
+    }
+
+    @Override
     public Mono<Void> deleteTask(String id) {
         log.debug("deleteTask called");
         Optional<Task> taskOptional = taskRepository.findById(id).blockOptional();
@@ -118,11 +124,6 @@ public class TaskServiceImpl implements TaskService {
 
     private boolean userOwnsProject(User user, Project project) {
         return user.equals(project.getOwner());
-    }
-
-    private Mono<Void> saveTask(Task task) {
-        log.debug("saveTask called");
-        return taskRepository.save(task).then();
     }
 
     @Override
