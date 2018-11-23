@@ -1,7 +1,10 @@
 package hu.rkoszegi.balancer.model;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,6 +14,9 @@ import java.util.Objects;
 
 @Data
 @Document
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
 
     @Id
@@ -49,5 +55,22 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", plannedDate=" + plannedDate +
+                ", completionDate=" + completionDate +
+                ", completed=" + completed +
+                ", description='" + description + '\'' +
+                ", priority=" + priority +
+                ", assignedToDate=" + assignedToDate +
+                ", estimatedTime=" + estimatedTime +
+                ", assignedUser=" + assignedUser.getUsername() +
+                ", project=" + project.getId() +
+                '}';
     }
 }

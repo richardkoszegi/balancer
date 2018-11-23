@@ -18,7 +18,7 @@ public class SqlUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username);
+        User user = userRepository.findUserByUsername(username).block();
         if (user == null) {
             throw new UsernameNotFoundException(username);
         }

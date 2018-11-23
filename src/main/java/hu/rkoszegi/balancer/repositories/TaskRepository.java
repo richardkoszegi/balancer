@@ -2,14 +2,15 @@ package hu.rkoszegi.balancer.repositories;
 
 import hu.rkoszegi.balancer.model.Task;
 import hu.rkoszegi.balancer.model.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 
 
-public interface TaskRepository extends CrudRepository<Task, String> {
+public interface TaskRepository extends ReactiveMongoRepository<Task, String> {
 
-    Iterable<Task> findAllByAssignedUserAndPlannedDateBetween(User user, Instant from, Instant to);
+    Flux<Task> findAllByAssignedUserAndPlannedDateBetween(User user, Instant from, Instant to);
 
-    Iterable<Task> findAllByAssignedUser(User user);
+    Flux<Task> findAllByAssignedUser(User user);
 }

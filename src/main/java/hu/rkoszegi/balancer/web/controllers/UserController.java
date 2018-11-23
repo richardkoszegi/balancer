@@ -5,80 +5,65 @@ import hu.rkoszegi.balancer.model.UserRole;
 import hu.rkoszegi.balancer.services.UserService;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
 import hu.rkoszegi.balancer.web.dto.UserDTO;
-import hu.rkoszegi.balancer.web.exception.UserNameAlreadyExistsException;
 import hu.rkoszegi.balancer.web.mapper.UserMapper;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
-    private UserMapper userMapper;
-    private UserService userService;
+    private final UserMapper userMapper;
+    private final UserService userService;
 
     public UserController(UserMapper userMapper, UserService userService) {
         this.userMapper = userMapper;
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Object> registerUserAccount(@RequestBody @Valid NewUserDTO accountDto) {
-        if(!accountDto.getPassword().equals(accountDto.getMatchingPassword())) {
-            return ResponseEntity.badRequest().body("Passwords does not match!");
-        }
-        User registered;
-        try {
-            registered = userService.createNewUser(accountDto);
-            return ResponseEntity.ok(registered.getUsername());
-        } catch (UserNameAlreadyExistsException e) {
-            return ResponseEntity.badRequest().body("Message: " + e.getMessage());
-        }
+    @PostMapping(value = "/register")
+    public Mono<String> registerUserAccount(@RequestBody @Valid NewUserDTO accountDto) {
+        return userService.createNewUser(accountDto);
     }
 
-    @RequestMapping(value = "/checkUserName", method = RequestMethod.GET)
-    public ResponseEntity<Boolean> checkIfUserExists(@PathParam("username") String username) {
-        return ResponseEntity.ok(userService.usernameExists(username));
+    @GetMapping(value = "/checkUserName")
+    public Mono<Boolean> checkIfUserExists(@RequestParam("username") String username) {
+        return Mono.just(userService.usernameExists(username));
     }
 
-    @RequestMapping(value = "/loggedInUser", method = RequestMethod.GET)
-    public UserDTO getLoggedInUser() {
-        return userMapper.mapUserToDto(userService.getLoggedInUser());
+    @GetMapping(value = "/loggedInUser")
+    public Mono<UserDTO> getLoggedInUser() {
+        return Mono.just(userService.getLoggedInUser()).map(userMapper::mapUserToDto);
     }
 
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
-    public List<String> getAllUserNames() {
-        Iterable<User> users = userService.getAllUser();
-        List<String> userNames = new ArrayList<>();
-        users.forEach(user -> userNames.add(user.getUsername()));
-        return userNames;
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<List<String>> getAllUserNames() {
+        Flux<User> users = userService.getAllUser();
+        return users.map(User::getUsername).collectList();
     }
 
 
-    @RequestMapping(method= RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Iterable<UserDTO> getAllUser() {
-        return userMapper.mapUsersToDtoList(userService.getAllUser());
+    public Flux<UserDTO> getAllUser() {
+        return userService.getAllUser().map(userMapper::mapUserToDto);
     }
 
-    @RequestMapping(value = "/{userName}", method= RequestMethod.DELETE)
+    @DeleteMapping(value = "/{userName}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity deleteUser(@PathVariable("userName") String userName) {
-        userService.deleteUser(userName);
-        return ResponseEntity.ok().build();
+    public Mono<Void> deleteUser(@PathVariable("userName") String userName) {
+        return userService.deleteUser(userName);
     }
 
-    @RequestMapping(value = "/{userName}/makeAdmin", method= RequestMethod.PUT)
+    @PutMapping(value = "/{userName}/makeAdmin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity changeUserRole(@PathVariable("userName") String userName) {
-        userService.chaneUserRole(userName, UserRole.ROLE_ADMIN);
-        return ResponseEntity.ok().build();
+    public Mono<Void> changeUserRole(@PathVariable("userName") String userName) {
+        return userService.chaneUserRole(userName, UserRole.ROLE_ADMIN);
     }
 }

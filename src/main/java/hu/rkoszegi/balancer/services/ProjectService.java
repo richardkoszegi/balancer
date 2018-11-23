@@ -2,22 +2,20 @@ package hu.rkoszegi.balancer.services;
 
 import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.web.dto.ProjectDTO;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 
 public interface ProjectService {
-    Iterable<ProjectDTO> listAllProjects();
+    Flux<ProjectDTO> listAllProjects();
 
-    Project getProjectById(String id);
+    Mono<ProjectDTO> findProjectById(String id);
 
-    ProjectDTO findProjectById(String id);
+    Mono<ProjectDTO> createProject(Project project);
 
-    ProjectDTO createProject(Project project);
+    Mono<Void> updateProject(ProjectDTO dto);
 
-    void updateProject(ProjectDTO dto);
+    Mono<Void> deleteProject(String id);
 
-    void saveProject(Project project);
-
-    void deleteProject(String id);
-
-    void updateProjectMembers(String id, Iterable<String> memberNames);
+    Mono<Void> updateProjectMembers(String id, Iterable<String> memberNames);
 }
