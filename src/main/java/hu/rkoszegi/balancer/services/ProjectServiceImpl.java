@@ -90,7 +90,8 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(String id) {
         log.debug("deleteProject called");
         Project project = getProjectById(id);
-        if(!project.getOwner().getUsername().equals(userService.getLoggedInUser().getUsername())) {
+        String loggedInUserName = userService.getLoggedInUser().getUsername();
+        if(!project.getOwner().getUsername().equals(loggedInUserName)) {
             throw new MethodNotAllowedException("update project members for this user", null);
         }
         project.getTasks().forEach(task -> taskService.deleteTask(task.getId()));
