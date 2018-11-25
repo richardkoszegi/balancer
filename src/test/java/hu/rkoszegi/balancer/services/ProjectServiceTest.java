@@ -4,6 +4,7 @@ import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.Task;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
+import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.ProjectDTO;
 import hu.rkoszegi.balancer.web.mapper.ProjectMapper;
@@ -28,9 +29,9 @@ public class ProjectServiceTest {
     private static final String TEST_PROJECT_ID = "TestProjectId";
 
     private ProjectRepository projectRepository;
+    private UserRepository userRepository;
 
     private TaskService taskService;
-    private UserService userService;
     private ProjectService projectService;
 
     private ProjectMapper projectMapper;
@@ -41,15 +42,16 @@ public class ProjectServiceTest {
     @Before
     public void setUp() {
         this.projectRepository = Mockito.mock(ProjectRepository.class);
+        this.userRepository = Mockito.mock(UserRepository.class);
         this.taskService = Mockito.mock(TaskService.class);
-        this.userService = Mockito.mock(UserService.class);
         this.projectMapper = Mockito.mock(ProjectMapper.class);
-        this.projectService = new ProjectServiceImpl(projectRepository, taskService, userService, projectMapper);
+        SessionService sessionService = Mockito.mock(SessionService.class);
+        this.projectService = new ProjectServiceImpl(projectRepository, userRepository, taskService, sessionService, projectMapper);
 
         initLoggedInUser();
         initTestProject();
 
-        given(userService.getLoggedInUser()).willReturn(loggedInUser);
+        given(sessionService.getLoggedInUser()).willReturn(loggedInUser);
 
         given(projectRepository.findById(TEST_PROJECT_ID))
                 .willReturn(Mono.just(testProject));
@@ -162,7 +164,6 @@ public class ProjectServiceTest {
 
     @Test
     public void deleteProjectTest() {
-        given(taskService.deleteTask(any())).willReturn(Mono.empty());
         given(projectRepository.deleteById(any(String.class))).willReturn(Mono.empty());
 
         projectService.deleteProject(TEST_PROJECT_ID).block();
@@ -174,7 +175,7 @@ public class ProjectServiceTest {
     @Test(expected = BadRequestException.class)
     public void updateMembersWithNonExistingOneTest() {
         List<String> newMembers = Collections.singletonList("notExistingMember");
-        given(userService.getUserByUsername(any())).willReturn(null);
+        given(userRepository.findUserByUsername(any())).willReturn(Mono.empty());
 
         Mono<Void> returnValue = projectService.updateProjectMembers(TEST_PROJECT_ID, newMembers);
     }
@@ -182,7 +183,7 @@ public class ProjectServiceTest {
     @Test
     public void updateProjectMembersTest() {
         List<String> newMembers = Arrays.asList("member1", "member2");
-        given(userService.getUserByUsername(any())).willReturn(new User());
+        given(userRepository.findUserByUsername(any())).willReturn(Mono.just(new User()));
         given(projectRepository.save(testProject)).willReturn(Mono.empty());
 
         Mono<Void> returnValue = projectService.updateProjectMembers(TEST_PROJECT_ID, newMembers);
@@ -202,7 +203,7 @@ public class ProjectServiceTest {
         testProject.getMembers().add(member);
 
         List<String> newMembers = Arrays.asList("anotherUser");
-        given(userService.getUserByUsername(any())).willReturn(new User());
+        given(userRepository.findUserByUsername(any())).willReturn(Mono.just(new User()));
         given(projectRepository.save(testProject)).willReturn(Mono.empty());
 
         Mono<Void> returnValue = projectService.updateProjectMembers(TEST_PROJECT_ID, newMembers);

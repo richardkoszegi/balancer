@@ -2,6 +2,7 @@ package hu.rkoszegi.balancer.services;
 
 
 import hu.rkoszegi.balancer.model.Task;
+import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.web.dto.TaskDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,6 +21,8 @@ public interface TaskService {
 
     Mono<Void> deleteTask(String id);
 
+    void deleteTask(Task task);
+
     Flux<TaskDTO> findTasksForDate(LocalDate date);
 
     Mono<Void> updateTask(TaskDTO taskDTO);
@@ -27,4 +30,6 @@ public interface TaskService {
     Mono<TaskDTO> createTask(String projectId, TaskDTO taskDTO);
 
     Mono<Date> completeTask(String taskId);
+
+    void reassignUserTasksToProjectOwner(User user);
 }

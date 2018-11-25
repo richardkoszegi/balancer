@@ -2,6 +2,7 @@ package hu.rkoszegi.balancer.web.controllers;
 
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.model.UserRole;
+import hu.rkoszegi.balancer.services.SessionService;
 import hu.rkoszegi.balancer.services.UserService;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
 import hu.rkoszegi.balancer.web.dto.UserDTO;
@@ -21,10 +22,12 @@ public class UserController {
 
     private final UserMapper userMapper;
     private final UserService userService;
+    private final SessionService sessionService;
 
-    public UserController(UserMapper userMapper, UserService userService) {
+    public UserController(UserMapper userMapper, UserService userService, SessionService sessionService) {
         this.userMapper = userMapper;
         this.userService = userService;
+        this.sessionService = sessionService;
     }
 
     @PostMapping(value = "/register")
@@ -39,7 +42,7 @@ public class UserController {
 
     @GetMapping(value = "/loggedInUser")
     public Mono<UserDTO> getLoggedInUser() {
-        return Mono.just(userService.getLoggedInUser()).map(userMapper::mapUserToDto);
+        return Mono.just(sessionService.getLoggedInUser()).map(userMapper::mapUserToDto);
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)

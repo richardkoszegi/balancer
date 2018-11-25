@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -80,6 +81,12 @@ public class TaskServiceImpl implements TaskService {
         } else {
             throw new BadRequestException("Task does not exists!");
         }
+    }
+
+    @Override
+    public void deleteTask(Task task) {
+        log.debug("deleteTask called");
+        taskRepository.delete(task).block();
     }
 
     @Override
@@ -171,8 +178,7 @@ public class TaskServiceImpl implements TaskService {
         if (userCanModifyTask(loggedInUser, storedTask)) {
             storedTask.setCompleted(true);
             storedTask.setCompletionDate(new Date());
-            saveTask(storedTask).block();
-            return Mono.just(storedTask.getCompletionDate());
+            return taskRepository.save(storedTask).map(Task::getCompletionDate);
         } else {
             throw new BadRequestException("User can't update this task");
         }
@@ -180,5 +186,18 @@ public class TaskServiceImpl implements TaskService {
 
     private boolean userCanCreateTask(User user, Project project) {
         return project.getMembers().contains(user) || project.getOwner().equals(user);
+    }
+
+    @Override
+    public void reassignUserTasksToProjectOwner(User user) {
+        Optional<List<Task>> optionalTaskList = taskRepository.findAllByAssignedUser(user).collectList().blockOptional();
+        if(!optionalTaskList.isPresent()) {
+            return;
+        }
+        List<Task> taskList = optionalTaskList.get();
+        taskList.forEach(task -> {
+            task.setAssignedUser(task.getProject().getOwner());
+            taskRepository.save(task).block();
+        });
     }
 }

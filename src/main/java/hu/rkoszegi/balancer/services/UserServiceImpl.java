@@ -1,9 +1,7 @@
 package hu.rkoszegi.balancer.services;
 
-import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.model.UserRole;
-import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
@@ -17,14 +15,16 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private PasswordEncoder passwordEncoder;
-    private UserRepository userRepository;
-    private ProjectRepository projectRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final TaskService taskService;
+    private final ProjectService projectService;
 
-    public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, ProjectRepository projectRepository) {
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, TaskService taskService, ProjectService projectService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.projectRepository = projectRepository;
+        this.taskService = taskService;
+        this.projectService = projectService;
     }
 
     @Override
@@ -61,9 +61,10 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userOptional.get();
-        Iterable<Project> userProjects = user.getProjects();
-        userProjects.forEach(project -> projectRepository.delete(project));
-        return userRepository.delete(user).then();
+        projectService.deleteUserOwnedProjects(user);
+        taskService.reassignUserTasksToProjectOwner(user);
+        projectService.removeUserFromMemberProjects(user);
+        return userRepository.delete(user);
     }
 
     @Override

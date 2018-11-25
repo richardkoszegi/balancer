@@ -97,6 +97,22 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Mono<Void> deleteProjectWhenUserDeleted(Project project) {
+        log.debug("deleteProjectWhenUserDeleted called");
+        project.getTasks().forEach(taskService::deleteTask);
+        return projectRepository.delete(project).then();
+    }
+
+    @Override
+    public void deleteUserOwnedProjects(User user) {
+        Optional<List<Project>> userProjectListOptional = projectRepository.findAllByOwner(user).collectList().blockOptional();
+        if(userProjectListOptional.isPresent()) {
+            List<Project> userProjects = userProjectListOptional.get();
+            userProjects.forEach(project -> deleteProjectWhenUserDeleted(project).block());
+        }
+    }
+
+    @Override
     public Mono<Void> updateProjectMembers(String id, Iterable<String> memberNames) {
         log.debug("updateProjectMembers called");
         Project project = findProjectIfExists(id);
@@ -120,5 +136,18 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setMembers(newMemberList);
         return projectRepository.save(project).then();
+    }
+
+    @Override
+    public void removeUserFromMemberProjects(User user) {
+        Optional<List<Project>> optionalProjects = projectRepository.findAllByMembersContaining(user).collectList().blockOptional();
+        if(!optionalProjects.isPresent()) {
+            return;
+        }
+        List<Project> projectList = optionalProjects.get();
+        projectList.forEach(project -> {
+            project.getMembers().remove(user);
+            projectRepository.save(project).block();
+        });
     }
 }
