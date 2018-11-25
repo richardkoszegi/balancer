@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class UserBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -24,12 +26,13 @@ public class UserBootstrap implements ApplicationListener<ContextRefreshedEvent>
     }
 
     private void initFirstAdmin() {
-        if(userRepository.findUserByUsername(FIRST_ADMIN_USER_NAME) == null) {
+        Optional<User> optionalUser = userRepository.findUserByUsername(FIRST_ADMIN_USER_NAME).blockOptional();
+        if(!optionalUser.isPresent()) {
             User user = new User();
             user.setUsername(FIRST_ADMIN_USER_NAME);
             user.setPassword("$2a$11$h5mzTndV8pUw9xbvwMyigOpVEUpV5iK66gz/rquD773P6CHSIgRxW");
             user.setRole(UserRole.ROLE_ADMIN);
-            userRepository.save(user);
+            userRepository.save(user).block();
         }
     }
 }
