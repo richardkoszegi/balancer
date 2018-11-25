@@ -6,6 +6,7 @@ import hu.rkoszegi.balancer.model.Task;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.repositories.TaskRepository;
+import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.TaskDTO;
 import hu.rkoszegi.balancer.web.mapper.TaskMapper;
@@ -26,14 +27,16 @@ public class TaskServiceImpl implements TaskService {
 
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
+    private final SessionService sessionService;
     private final TaskMapper taskMapper;
 
 
-    public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService, TaskMapper taskMapper) {
+    public TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, SessionService sessionService, TaskMapper taskMapper) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
-        this.userService = userService;
+        this.userRepository = userRepository;
+        this.sessionService = sessionService;
         this.taskMapper = taskMapper;
     }
 
@@ -53,7 +56,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Flux<Task> findAllTask() {
         log.debug("findAllTask called");
-        return taskRepository.findAllByAssignedUser(userService.getLoggedInUser());
+        return taskRepository.findAllByAssignedUser(sessionService.getLoggedInUser());
     }
 
     @Override
@@ -68,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> taskOptional = taskRepository.findById(id).blockOptional();
         if (taskOptional.isPresent()) {
             Task deletedTask = taskOptional.get();
-            User loggedInUser = userService.getLoggedInUser();
+            User loggedInUser = sessionService.getLoggedInUser();
             if (userCanModifyTask(loggedInUser, deletedTask)) {
                 return taskRepository.deleteById(id).then();
             } else {
@@ -84,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
         log.debug("findTasksForDate called");
         LocalDate to = date.plusDays(1);
         Flux<Task> tasks = taskRepository.findAllByAssignedUserAndPlannedDateBetween(
-                userService.getLoggedInUser(),
+                sessionService.getLoggedInUser(),
                 date.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant(),
                 to.atStartOfDay().atZone(ZoneId.of("Europe/Paris")).toInstant());
         return tasks.map(taskMapper::toDto);
@@ -94,7 +97,7 @@ public class TaskServiceImpl implements TaskService {
     public Mono<Void> updateTask(TaskDTO taskDTO) {
         log.debug("updateTask called");
         Optional<Task> storedTaskOptional = getTaskById(taskDTO.getId()).blockOptional();
-        User loggedInUser = userService.getLoggedInUser();
+        User loggedInUser = sessionService.getLoggedInUser();
         if (!storedTaskOptional.isPresent()) {
             throw new BadRequestException("Task does not exists");
         }
@@ -112,8 +115,14 @@ public class TaskServiceImpl implements TaskService {
         storedTask.setAssignedToDate(taskDTO.isAssignedToDate());
         storedTask.setEstimatedTime(taskDTO.getEstimatedTime());
         if (userOwnsProject(loggedInUser, storedTask.getProject())) {
-            User newAssignee = userService.getUserByUsername(taskDTO.getAssignedUser());
-            storedTask.setAssignedUser(newAssignee);
+            Optional<User> optionalUser = userRepository.findUserByUsername(taskDTO.getAssignedUser()).blockOptional();
+            if(optionalUser.isPresent()) {
+                User newAssignee = optionalUser.get();
+                storedTask.setAssignedUser(newAssignee);
+            } else {
+                throw new BadRequestException("Assigned user does not exists!");
+            }
+
         }
         return saveTask(storedTask).then();
     }
@@ -132,7 +141,7 @@ public class TaskServiceImpl implements TaskService {
         Optional<Project> projectOptional = projectRepository.findById(projectId).blockOptional();
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
-            User loggedInUser = userService.getLoggedInUser();
+            User loggedInUser = sessionService.getLoggedInUser();
             if (userCanCreateTask(loggedInUser, project)) {
                 Task task = taskMapper.toEntity(taskDTO);
                 task.setAssignedUser(loggedInUser);
@@ -158,7 +167,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task storedTask = storedTaskOptional.get();
-        User loggedInUser = userService.getLoggedInUser();
+        User loggedInUser = sessionService.getLoggedInUser();
         if (userCanModifyTask(loggedInUser, storedTask)) {
             storedTask.setCompleted(true);
             storedTask.setCompletionDate(new Date());

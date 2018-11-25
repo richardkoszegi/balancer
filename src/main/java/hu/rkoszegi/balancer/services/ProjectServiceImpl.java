@@ -4,6 +4,7 @@ import hu.rkoszegi.balancer.model.Project;
 import hu.rkoszegi.balancer.model.Task;
 import hu.rkoszegi.balancer.model.User;
 import hu.rkoszegi.balancer.repositories.ProjectRepository;
+import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.ProjectDTO;
 import hu.rkoszegi.balancer.web.mapper.ProjectMapper;
@@ -23,22 +24,24 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProjectServiceImpl implements ProjectService {
 
-    private ProjectRepository projectRepository;
-    private TaskService taskService;
-    private UserService userService;
-    private ProjectMapper projectMapper;
+    private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final TaskService taskService;
+    private final SessionService sessionService;
+    private final ProjectMapper projectMapper;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, TaskService taskService, UserService userService, ProjectMapper projectMapper) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, TaskService taskService, SessionService sessionService, ProjectMapper projectMapper) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
         this.taskService = taskService;
-        this.userService = userService;
+        this.sessionService = sessionService;
         this.projectMapper = projectMapper;
     }
 
     @Override
     public Flux<ProjectDTO> listAllProjects() {
         log.debug("listAllProjects called");
-        User loggedInUser = userService.getLoggedInUser();
+        User loggedInUser = sessionService.getLoggedInUser();
         Flux<Project> ownedProjects = projectRepository.findAllByOwner(loggedInUser);
         Flux<Project> memberProjects = projectRepository.findAllByMembersContaining(loggedInUser);
         return Flux.concat(ownedProjects.map(projectMapper::toDto), memberProjects.map(projectMapper::toDto));
@@ -54,7 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Mono<ProjectDTO> createProject(Project project) {
         log.debug("createProject called");
-        project.setOwner(userService.getLoggedInUser());
+        project.setOwner(sessionService.getLoggedInUser());
         Mono<Project> inserted = projectRepository.save(project);
         return inserted.map(projectMapper::toDto);
     }
@@ -71,7 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private void checkIfLoggedInUserCanModifyProject(String projectOwnerName) {
-        if (!projectOwnerName.equals(userService.getLoggedInUser().getUsername())) {
+        if (!projectOwnerName.equals(sessionService.getLoggedInUser().getUsername())) {
             throw new MethodNotAllowedException("update project members for this user", null);
         }
     }
@@ -100,8 +103,9 @@ public class ProjectServiceImpl implements ProjectService {
         checkIfLoggedInUserCanModifyProject(project.getOwner().getUsername());
         List<User> newMemberList = new ArrayList<>();
         for (String username : memberNames) {
-            User user = userService.getUserByUsername(username);
-            if (user != null) {
+            Optional<User> userOptional = userRepository.findUserByUsername(username).blockOptional();
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
                 newMemberList.add(user);
             } else {
                 throw new BadRequestException("User '" + username + "' does not exists");

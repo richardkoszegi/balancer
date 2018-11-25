@@ -12,8 +12,6 @@ public interface UserService {
 
     boolean usernameExists(String userName);
 
-    User getLoggedInUser();
-
     Flux<User> getAllUser();
 
     Mono<Void> deleteUser(String userName);

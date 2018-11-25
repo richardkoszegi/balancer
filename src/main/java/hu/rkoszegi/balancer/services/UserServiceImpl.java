@@ -7,8 +7,6 @@ import hu.rkoszegi.balancer.repositories.ProjectRepository;
 import hu.rkoszegi.balancer.repositories.UserRepository;
 import hu.rkoszegi.balancer.services.exception.BadRequestException;
 import hu.rkoszegi.balancer.web.dto.NewUserDTO;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -48,16 +46,7 @@ public class UserServiceImpl implements UserService {
         return user!= null;
     }
 
-    @Override
-    public User getLoggedInUser() {
-        String userName = getLoggedInUserName();
-        return userRepository.findUserByUsername(userName).block();
-    }
 
-    private String getLoggedInUserName() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
-    }
 
     @Override
     public Flux<User> getAllUser() {
