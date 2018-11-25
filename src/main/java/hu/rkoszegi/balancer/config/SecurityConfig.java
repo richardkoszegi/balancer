@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
                 .and()
                 .authorizeRequests()
-                .antMatchers("/", "/api/auth/login", "/h2-console/**", "/home", "/api/user/register", "/api/user/checkUserName", "/**.js", "/**.css", "/fontawesome-*", "/glyphicons-*", "/bootstrap*", "/favicon.ico").permitAll()
+                .antMatchers("/api/auth/login", "/api/user/register", "/api/user/checkUserName", "/**.js", "/**.css", "/glyphicons-*", "/favicon.ico").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().loginPage("/").loginProcessingUrl("/api/auth/login")
