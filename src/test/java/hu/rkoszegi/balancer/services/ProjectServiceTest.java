@@ -53,6 +53,8 @@ public class ProjectServiceTest {
 
         given(projectRepository.findById(TEST_PROJECT_ID))
                 .willReturn(Mono.just(testProject));
+
+        given(taskService.saveTask(any(Task.class))).willReturn(Mono.empty());
     }
 
     private void initLoggedInUser() {
@@ -67,6 +69,7 @@ public class ProjectServiceTest {
         testProject = Project.builder()
                 .id(TEST_PROJECT_ID)
                 .owner(loggedInUser)
+                .members(new ArrayList<>())
                 .tasks(tasks).build();
     }
 
@@ -186,5 +189,24 @@ public class ProjectServiceTest {
         
         verify(projectRepository).save(testProject);
         Assert.assertEquals(2, testProject.getMembers().size());
+    }
+
+    @Test
+    public void updateAssignedUserWhenUserRemovedFromProjectTest() {
+
+        User member = User.builder().id("member").username("member").build();
+
+        Task task = Task.builder().assignedUser(member).build();
+
+        testProject.getTasks().add(task);
+        testProject.getMembers().add(member);
+
+        List<String> newMembers = Arrays.asList("anotherUser");
+        given(userService.getUserByUsername(any())).willReturn(new User());
+        given(projectRepository.save(testProject)).willReturn(Mono.empty());
+
+        Mono<Void> returnValue = projectService.updateProjectMembers(TEST_PROJECT_ID, newMembers);
+
+        Assert.assertEquals(loggedInUser, task.getAssignedUser());
     }
 }
