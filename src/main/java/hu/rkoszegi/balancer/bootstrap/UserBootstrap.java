@@ -5,6 +5,7 @@ import hu.rkoszegi.balancer.model.UserRole;
 import hu.rkoszegi.balancer.repositories.UserRepository;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,10 +15,12 @@ public class UserBootstrap implements ApplicationListener<ContextRefreshedEvent>
 
     private static final String FIRST_ADMIN_USER_NAME = "FirstAdminUser";
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserBootstrap(UserRepository userRepository) {
+    public UserBootstrap(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class UserBootstrap implements ApplicationListener<ContextRefreshedEvent>
         if(!optionalUser.isPresent()) {
             User user = new User();
             user.setUsername(FIRST_ADMIN_USER_NAME);
-            user.setPassword("$2a$11$h5mzTndV8pUw9xbvwMyigOpVEUpV5iK66gz/rquD773P6CHSIgRxW");
+            user.setPassword(passwordEncoder.encode(FIRST_ADMIN_USER_NAME + "123"));
             user.setRole(UserRole.ROLE_ADMIN);
             userRepository.save(user).block();
         }
