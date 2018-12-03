@@ -1,3 +1,11 @@
-<p>
-  home works!
-</p>
+<div *ngIf="!isUserLoggedIn()" class='row well well-lg'>
+  <div class='col-md-6'>
+    <h2>Welcome in the Balancer application!</h2>
+    <p class='lead'>Please, log in or register!</p>
+    <button [routerLink]="['/login']" type='button' class='btn btn-lg btn-primary'>Log In</button>
+    <button [routerLink]="['/register']" type='button' class='btn btn-lg btn-success'>Register</button>
+  </div>
+</div>
+<div *ngIf="isUserLoggedIn()" class='row well well-lg'>
+  You are successfully logged in!
+</div>
